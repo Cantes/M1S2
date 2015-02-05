@@ -2,6 +2,8 @@
 #include <iostream>
 #include "image_ppm.h"
 
+using namespace std;
+
 void dilate(char* entre,char* sortie){
 
 	int nH, nW, nTaille,nB;
@@ -132,23 +134,128 @@ void difference(char* entreSeuile, char* entreDilate, char* sortie){
 }
 
 
+void erodeSansSeuil(char* entre, char* sortie){
+
+
+	int nH, nW, nTaille,nB;
+	int* tab = new int[8];
+	
+	OCTET *ImgIn, *ImgOut;
+	
+   	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+	nTaille = nH * nW;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	lire_image_pgm(entre, ImgIn, nH * nW);
+
+	
+	for (int i=0; i < nH; i++){
+		for (int j=0; j < nW; j++){
+			nB = 0;
+			for(int k=-1; k<2; k++){
+				for(int l=-1; l<2; l++){
+					if( (k != 0) && (l != 0)){
+						tab[nB] =ImgIn[(i + k)*nW+(j+l)];
+						nB++;	
+					}
+				}
+			}
+			
+			int min = 255;
+			
+			
+			
+			for(int t =0; t<8; t++){
+				if((tab[t] < min) && (tab[t] != 0)){
+					min = tab[t];
+				}
+			}
+        	
+        		ImgOut[i*nW+j] = min;
+        			
+		}
+	}	
+		
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW);
+	
+	free(ImgIn);
+	free(ImgOut);
+}
+
+void dilateSansSeuil(char* entre, char* sortie){
+
+
+	int nH, nW, nTaille,nB;
+	int* tab = new int[8];
+	
+	OCTET *ImgIn, *ImgOut;
+	
+   	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+	nTaille = nH * nW;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	lire_image_pgm(entre, ImgIn, nH * nW);
+
+	
+	for (int i=0; i < nH; i++){
+		for (int j=0; j < nW; j++){
+			nB = 0;
+			for(int k=-1; k<2; k++){
+				for(int l=-1; l<2; l++){
+					if( (k != 0) && (l != 0)){
+						tab[nB] =ImgIn[(i + k)*nW+(j+l)];
+						nB++;	
+					}
+				}
+			}
+			
+			int max = 0;
+			
+			
+			
+			for(int t =0; t<8; t++){
+				if((tab[t] > max) && (tab[t] != 255)){
+					max = tab[t];
+				}
+			}
+        	
+        		ImgOut[i*nW+j] = max;
+        			
+		}
+	}	
+		
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW);
+	
+	free(ImgIn);
+	free(ImgOut);
+}
+
+
+
+
 
 
 
 
 int main(int argc, char* argv[])
 {
+
   char* cNomImgLue = new char[256];
   char* cNomImgDilate = new char[256];
   char* cNomImgEcrite = new char[256];
   int nH, nW, nTaille, S;
    
    sscanf (argv[1],"%s",cNomImgLue) ;
-   sscanf (argv[2],"%s",cNomImgDilate);
-   sscanf (argv[3],"%s",cNomImgEcrite);
+  // sscanf (argv[2],"%s",cNomImgDilate);
+   sscanf (argv[2],"%s",cNomImgEcrite);
+   //sscanf (argv[3],"%s",cNomImgEcrite);
    
-   difference(cNomImgLue,cNomImgDilate,cNomImgEcrite);
+   //difference(cNomImgLue,cNomImgDilate,cNomImgEcrite);
    
+   //erodeSansSeuil(cNomImgLue, cNomImgEcrite);
+   dilateSansSeuil(cNomImgLue, cNomImgEcrite);
    
    /*
    
