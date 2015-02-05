@@ -162,18 +162,15 @@ void erodeSansSeuil(char* entre, char* sortie){
 				}
 			}
 			
-			int min = 255;
-			
-			
-			
+			int max = 0;
+		
 			for(int t =0; t<8; t++){
-				if((tab[t] < min) && (tab[t] != 0)){
-					min = tab[t];
+				if((tab[t] > max)){
+					max = tab[t];
 				}
 			}
-        	
-        		ImgOut[i*nW+j] = min;
-        			
+			
+			ImgOut[i*nW+j] = max;		
 		}
 	}	
 		
@@ -211,17 +208,15 @@ void dilateSansSeuil(char* entre, char* sortie){
 				}
 			}
 			
-			int max = 0;
-			
-			
+			int min = 255;
 			
 			for(int t =0; t<8; t++){
-				if((tab[t] > max) && (tab[t] != 255)){
-					max = tab[t];
+				if((tab[t] < min) && (tab[t] != 0)){
+					min = tab[t];
 				}
 			}
-        	
-        		ImgOut[i*nW+j] = max;
+			
+        		ImgOut[i*nW+j] = min;
         			
 		}
 	}	
@@ -231,13 +226,6 @@ void dilateSansSeuil(char* entre, char* sortie){
 	free(ImgIn);
 	free(ImgOut);
 }
-
-
-
-
-
-
-
 
 int main(int argc, char* argv[])
 {
@@ -254,8 +242,10 @@ int main(int argc, char* argv[])
    
    //difference(cNomImgLue,cNomImgDilate,cNomImgEcrite);
    
-   //erodeSansSeuil(cNomImgLue, cNomImgEcrite);
-   dilateSansSeuil(cNomImgLue, cNomImgEcrite);
+   erodeSansSeuil(cNomImgLue, cNomImgEcrite);
+   dilateSansSeuil(cNomImgEcrite, cNomImgEcrite);
+
+  
    
    /*
    
