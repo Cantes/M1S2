@@ -84,6 +84,53 @@ void erode(char* entre, char* sortie){
 	free(ImgOut);
 }
 
+void fermeture(char* entre, char* sortie){
+
+	dilate(entre,sortie);
+	erode(sortie,sortie);
+}
+
+void ouverture(char* entre, char* sortie){
+
+	erode(entre,sortie);
+	dilate(sortie,sortie);
+}
+
+void difference(char* entreSeuile, char* entreDilate, char* sortie){
+
+	int nH, nW, nTaille;
+	OCTET *ImgInSeuile, *ImgInDilate, *ImgOut;
+	
+	lire_nb_lignes_colonnes_image_pgm(entreSeuile, &nH, &nW);
+	nTaille = nH * nW;
+	
+	allocation_tableau(ImgInSeuile, OCTET, nTaille);
+	allocation_tableau(ImgInDilate, OCTET, nTaille);
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	
+	lire_image_pgm(entreSeuile, ImgInSeuile, nH * nW);
+	lire_image_pgm(entreDilate, ImgInDilate, nH * nW);
+	
+	
+	for (int i=0; i < nH; i++){
+		for (int j=0; j < nW; j++){
+			if ( ImgInSeuile[i*nW+j] == 255 &&  ImgInDilate[i*nW+j] == 255){
+				ImgOut[i*nW+j]=255;
+			}else if ( ImgInSeuile[i*nW+j] == 0 &&  ImgInDilate[i*nW+j] == 0){
+				ImgOut[i*nW+j]=255;
+			}else{
+				ImgOut[i*nW+j]=0;
+			}
+		}
+	}
+	
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW);
+	
+	free(ImgInSeuile);
+	free(ImgInDilate);
+	free(ImgOut);
+}
+
 
 
 
@@ -92,8 +139,18 @@ void erode(char* entre, char* sortie){
 int main(int argc, char* argv[])
 {
   char* cNomImgLue = new char[256];
+  char* cNomImgDilate = new char[256];
   char* cNomImgEcrite = new char[256];
   int nH, nW, nTaille, S;
+   
+   sscanf (argv[1],"%s",cNomImgLue) ;
+   sscanf (argv[2],"%s",cNomImgDilate);
+   sscanf (argv[3],"%s",cNomImgEcrite);
+   
+   difference(cNomImgLue,cNomImgDilate,cNomImgEcrite);
+   
+   
+   /*
    
    if(argc == 4){
  	sscanf (argv[1],"%s",cNomImgLue) ;
@@ -129,6 +186,11 @@ int main(int argc, char* argv[])
 	sscanf (argv[1],"%s",cNomImgLue) ;
 	sscanf (argv[2],"%s",cNomImgEcrite);
 	
+	
+	//fermeture(cNomImgLue,cNomImgEcrite);
+
+	//ouverture(cNomImgEcrite,cNomImgEcrite);
+	
 	//dilate(cNomImgLue, cNomImgEcrite);
 	
 	/*
@@ -144,7 +206,7 @@ int main(int argc, char* argv[])
 		dilate(cNomImgEcrite, cNomImgEcrite);
 	}
 	*/
-	
+	/*
 	for(int i=0; i<3; i++){
 		if(i == 0){
 			dilate(cNomImgLue, cNomImgEcrite);
@@ -160,12 +222,13 @@ int main(int argc, char* argv[])
 	for(int i=0; i<3; i++){
 		dilate(cNomImgEcrite, cNomImgEcrite);
 	}
-	
-	
+	*/
+/*
    }
 
-
+*/
    free(cNomImgLue);
+   free(cNomImgDilate);
    free(cNomImgEcrite);
    
 
