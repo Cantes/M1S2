@@ -90,8 +90,10 @@ void seuilCouleur(char* fileName){
 	
 	ImageBase imOut(imIn.getWidth(), imIn.getHeight(), imIn.getColor());
 
-	for(int x = 0; x < imIn.getHeight() * 3; x++){
-		for(int y = 0; y < imIn.getWidth(); y = y+3){
+	for(int x = 0; x < imIn.getHeight() * 3; ++x)
+	{
+		for(int y = 0; y < imIn.getWidth(); y = y+3)
+		{
 			for(int k = 0; k < 3; k++){
 				if (imIn[x][y + k] < 30){
 					imOut[x][y + k] = 0;
