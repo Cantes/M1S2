@@ -93,9 +93,9 @@ void expansionGris(char* entre, char* sortie){
    	lire_nb_lignes_colonnes_image_ppm(entre, &nH, &nW);
    	nTaille = nH * nW;
   
-	allocation_tableau(ImgIn, OCTET, nTaille3);
+	allocation_tableau(ImgIn, OCTET, nTaille);
 	lire_image_ppm(entre, ImgIn, nH * nW);
-	allocation_tableau(ImgOut, OCTET, nTaille3);
+	allocation_tableau(ImgOut, OCTET, nTaille);
 	
 	
 	a0 = 50;
@@ -158,7 +158,7 @@ int retourneA0(char* nomFichier){
 int retourneA1(char* nomFichier){
 	//TODO   
 }
-/*
+
 void seuilCouleur(char* entre, char* sortie){
 
 	ImageBase imIn;
@@ -179,9 +179,36 @@ void seuilCouleur(char* entre, char* sortie){
 			} 
 		}
 	}
+		
 	
-	imOut.save(sortie);	
-}*/
+	int nH, nW, nTaille;
+
+	OCTET *ImgIn, *ImgOut;
+   
+   	lire_nb_lignes_colonnes_image_ppm(entre, &nH, &nW);
+   	nTaille = nH * nW;
+  
+	int nTaille3 = nTaille * 3;
+	allocation_tableau(ImgIn, OCTET, nTaille3);
+	lire_image_ppm(entre, ImgIn, nH * nW);
+	allocation_tableau(ImgOut, OCTET, nTaille3);
+	
+	for (int i=0; i < nTaille3; i+=3){
+		for(int j=0; j<3; j++){
+			if(ImgIn[i+j] < 50){
+				ImgOut[i+j] = 50;
+			}else if(ImgIn[i+j] > 200){
+				ImgOut[i+j] = 200;
+			}else{
+				ImgOut[i+j] = ImgIn[i+j];
+			}
+		}
+	}
+
+	ecrire_image_ppm(sortie, ImgOut,  nH, nW);
+	free(ImgIn);	
+	
+}
 
 int main(int argc, char* argv[]){
 

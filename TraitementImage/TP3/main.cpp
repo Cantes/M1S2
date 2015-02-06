@@ -158,30 +158,37 @@ int retourneA0(char* nomFichier){
 int retourneA1(char* nomFichier){
 	//TODO   
 }
-/*
+
 void seuilCouleur(char* entre, char* sortie){
 
-	ImageBase imIn;
-	imIn.load(entre);
-	
-	ImageBase imOut(imIn.getWidth(), imIn.getHeight(), imIn.getColor());
+	int nH, nW, nTaille;
 
-	for(int x = 0; x < imIn.getHeight() * 3; x++){
-		for(int y = 0; y < imIn.getWidth(); y = y+3){
-			for(int k = 0; k < 3; k++){
-				if (imIn[x][y + k] < 50){
-					imOut[x][y + k] = 50;
-				}else if (imIn[x][y + k] > 200){
-					imOut[x][y + k] = 200;
-				}else{
-					imOut[x][y + k] = imIn[x][y + k];
-				}
-			} 
+	OCTET *ImgIn, *ImgOut;
+   
+   	lire_nb_lignes_colonnes_image_ppm(entre, &nH, &nW);
+   	nTaille = nH * nW;
+  
+	int nTaille3 = nTaille * 3;
+	allocation_tableau(ImgIn, OCTET, nTaille3);
+	lire_image_ppm(entre, ImgIn, nH * nW);
+	allocation_tableau(ImgOut, OCTET, nTaille3);
+	
+	for (int i=0; i < nTaille3; i+=3){
+		for(int j=0; j<3; j++){
+			if(ImgIn[i+j] < 50){
+				ImgOut[i+j] = 50;
+			}else if(ImgIn[i+j] > 200){
+				ImgOut[i+j] = 200;
+			}else{
+				ImgOut[i+j] = ImgIn[i+j];
+			}
 		}
 	}
+
+	ecrire_image_ppm(sortie, ImgOut,  nH, nW);
+	free(ImgIn);	
 	
-	imOut.save(sortie);	
-}*/
+}
 
 int main(int argc, char* argv[]){
 
