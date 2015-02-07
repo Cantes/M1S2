@@ -79,8 +79,51 @@ void histoCouleur(char* entre, char* cNomHisto){
 
 }
 
-void ddp(char* entre, char* sortie){
-
+void ddp(char* entre,char* file,char* histo){
+	
+	int niveau[256];
+	float densite[256];
+	int nW,nH,nTaille;
+	
+	for(int i = 0 ; i< 256; i++){
+		niveau[i] = 0;
+	}
+	
+	OCTET *ImgIn;
+	
+	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+	nTaille = nH * nW;
+	
+	cout << nTaille << endl;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	lire_image_pgm(entre, ImgIn, nH * nW);
+	
+	fstream fichier(histo, ios::out | ios::trunc);
+	fstream fichierDDP(file, ios::out | ios::trunc);
+		
+	for(int i =0; i < nH; i++){
+		for(int j =0; j < nW; j++){
+			niveau[ImgIn[i*nW+j]] = niveau[ImgIn[i*nW+j]] + 1;
+		}	
+	}
+	
+	for(int i =0; i < 256; i++){
+		fichier << i << " " << niveau[i] <<  endl;
+		if(i>0){
+			densite[i] =( (float) niveau[i] / (float) nTaille ) + densite[i-1];
+			cout << i << " " << niveau[i] <<  endl;
+			fichierDDP << i << " " << densite[i] <<  endl;
+		}else{
+			densite[i] = (float) niveau[i] / (float) nTaille;
+			cout << i << " " << niveau[i] <<  endl;
+			fichierDDP << i << " " << densite[i] <<  endl;
+		}
+	}
+	
+	fichier.close();
+	fichierDDP.close();
+	
 }
 
 void expansionGris(char* entre, char* sortie){	
@@ -161,26 +204,6 @@ int retourneA1(char* nomFichier){
 
 void seuilCouleur(char* entre, char* sortie){
 
-	ImageBase imIn;
-	imIn.load(entre);
-	
-	ImageBase imOut(imIn.getWidth(), imIn.getHeight(), imIn.getColor());
-
-	for(int x = 0; x < imIn.getHeight() * 3; x++){
-		for(int y = 0; y < imIn.getWidth(); y = y+3){
-			for(int k = 0; k < 3; k++){
-				if (imIn[x][y + k] < 50){
-					imOut[x][y + k] = 50;
-				}else if (imIn[x][y + k] > 200){
-					imOut[x][y + k] = 200;
-				}else{
-					imOut[x][y + k] = imIn[x][y + k];
-				}
-			} 
-		}
-	}
-		
-	
 	int nH, nW, nTaille;
 
 	OCTET *ImgIn, *ImgOut;
@@ -225,11 +248,13 @@ int main(int argc, char* argv[]){
      	//histoGris(cNomImgEcrite,cNomHisto);
      	//histoCouleur(cNomImgLue, cNomHisto);
      	
-     	expansionCouleur(cNomImgLue,cNomImgEcrite);
-     	histoCouleur(cNomImgEcrite, cNomHisto);
+     	//expansionCouleur(cNomImgLue,cNomImgEcrite);
+     	//histoCouleur(cNomImgEcrite, cNomHisto);
      	
      	//seuilCouleur(cNomImgLue,cNomImgEcrite);
      	//histoCouleur(cNomImgEcrite, cNomHisto);
+     	
+     	ddp(cNomImgLue,cNomImgEcrite,cNomHisto);
 
    return 1;
 }

@@ -79,8 +79,49 @@ void histoCouleur(char* entre, char* cNomHisto){
 
 }
 
-void ddp(char* entre, char* sortie){
-
+void ddp(char* entre,char* file,char* histo){
+	
+	int niveau[256];
+	float densite[256];
+	int nW,nH,nTaille;
+	
+	for(int i = 0 ; i< 256; i++){
+		niveau[i] = 0;
+	}
+	
+	OCTET *ImgIn;
+	
+	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+	nTaille = nH * nW;
+	
+	cout << nTaille << endl;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	lire_image_pgm(entre, ImgIn, nH * nW);
+	
+	fstream fichier(histo, ios::out | ios::trunc);
+	fstream fichierDDP(file, ios::out | ios::trunc);
+		
+	for(int i =0; i < nH; i++){
+		for(int j =0; j < nW; j++){
+			niveau[ImgIn[i*nW+j]] = niveau[ImgIn[i*nW+j]] + 1;
+		}	
+	}
+	
+	for(int i =0; i < 256; i++){
+		fichier << i << " " << niveau[i] <<  endl;
+		if(i>0){
+			densite[i] =( (float) niveau[i] / (float) nTaille ) + densite[i-1];
+			fichierDDP << i << " " << densite[i] <<  endl;
+		}else{
+			densite[i] = (float) niveau[i] / (float) nTaille;
+			fichierDDP << i << " " << densite[i] <<  endl;
+		}
+	}
+	
+	fichier.close();
+	fichierDDP.close();
+	
 }
 
 void expansionGris(char* entre, char* sortie){	
@@ -205,11 +246,13 @@ int main(int argc, char* argv[]){
      	//histoGris(cNomImgEcrite,cNomHisto);
      	//histoCouleur(cNomImgLue, cNomHisto);
      	
-     	expansionCouleur(cNomImgLue,cNomImgEcrite);
-     	histoCouleur(cNomImgEcrite, cNomHisto);
+     	//expansionCouleur(cNomImgLue,cNomImgEcrite);
+     	//histoCouleur(cNomImgEcrite, cNomHisto);
      	
      	//seuilCouleur(cNomImgLue,cNomImgEcrite);
      	//histoCouleur(cNomImgEcrite, cNomHisto);
+     	
+     	ddp(cNomImgLue,cNomImgEcrite,cNomHisto);
 
    return 1;
 }
