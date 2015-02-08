@@ -175,6 +175,76 @@ void egalisation(char* entre,char* sortie){
 
 }
 
+void specialisation(char* entre, char* imgRef, char* sortie){
+
+	int niveau[256];
+	float densite[256];
+	int nW,nH,nTaille;
+	
+	for(int i = 0 ; i< 256; i++){
+		niveau[i] = 0;
+		densite[i] = 0;
+	}
+	
+	OCTET *ImgIn, *ImgOut;
+	
+	
+   	lire_nb_lignes_colonnes_image_pgm(imgRef, &nH, &nW);
+   	nTaille = nH * nW;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	lire_image_pgm(imgRef, ImgIn, nH * nW);
+
+	
+		
+	for(int i =0; i < nH; i++){
+		for(int j =0; j < nW; j++){
+			niveau[ImgIn[i*nW+j]] = niveau[ImgIn[i*nW+j]] + 1;
+		}	
+	}
+	
+	free(ImgIn);
+	
+	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+   	nTaille = nH * nW;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	lire_image_pgm(entre, ImgIn, nH * nW);
+	
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	
+	
+	for(int i =0; i < 256; i++){
+		if(i>0){
+			densite[i] =( (float) niveau[i] / (float) nTaille ) + densite[i-1];
+		}else{
+			densite[i] = (float) niveau[i] / (float) nTaille;
+		}
+	}
+	
+	bool val = true;
+	for(int i =0; i < nH; i++){
+		for(int j =0; j < nW; j++){
+			val = true;
+			for(int k=0; k<256;k++){
+				if((densite[k] >= (float)ImgIn[i*nW+j] / 255) && val){
+					ImgOut[i*nW+j] = k;
+					val = false;
+				}
+			}	
+		}	
+	}
+	
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW);
+	
+	
+	free(ImgIn);
+	free(ImgOut);
+	
+}
+
+
+
 void expansionGris(char* entre, char* sortie){	
 	
 	int a0, a1, alpha, beta;
@@ -305,7 +375,14 @@ int main(int argc, char* argv[]){
      	//histoCouleur(cNomImgEcrite, cNomHisto);
      	
      	//ddp(cNomImgLue,cNomImgEcrite,cNomHisto);
-     	egalisation(cNomImgLue,cNomImgEcrite);
+     	//egalisation(cNomImgLue,cNomImgEcrite);
+     	
+     	//histoGris(cNomImgEcrite,cNomHisto);
+     	//egalisation(cNomImgLue,cNomImgEcrite);
+     	//histoGris(cNomImgEcrite,cNomHisto);
+     	
+     	//specialisation(cNomImgLue,cNomImgEcrite, cNomHisto);
+     	histoGris(cNomImgEcrite,cNomHisto);
 
    return 1;
 }
