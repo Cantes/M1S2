@@ -87,6 +87,7 @@ void ddp(char* entre,char* file,char* histo){
 	
 	for(int i = 0 ; i< 256; i++){
 		niveau[i] = 0;
+		densite[i] = 0;
 	}
 	
 	OCTET *ImgIn;
@@ -124,6 +125,56 @@ void ddp(char* entre,char* file,char* histo){
 	
 }
 
+void egalisation(char* entre,char* sortie){
+
+	int niveau[256];
+	float densite[256];
+	int nW,nH,nTaille;
+	
+	for(int i = 0 ; i< 256; i++){
+		niveau[i] = 0;
+		densite[i] = 0;
+	}
+	
+	OCTET *ImgIn, *ImgOut;
+	
+	
+   	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+   	nTaille = nH * nW;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	lire_image_pgm(entre, ImgIn, nH * nW);
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	
+		
+	for(int i =0; i < nH; i++){
+		for(int j =0; j < nW; j++){
+			niveau[ImgIn[i*nW+j]] = niveau[ImgIn[i*nW+j]] + 1;
+		}	
+	}
+	
+	for(int i =0; i < 256; i++){
+		if(i>0){
+			densite[i] =( (float) niveau[i] / (float) nTaille ) + densite[i-1];
+		}else{
+			densite[i] = (float) niveau[i] / (float) nTaille;
+		}
+	}
+	
+	for(int i =0; i < nH; i++){
+		for(int j =0; j < nW; j++){
+			ImgOut[i*nW+j] = 255*densite[ImgIn[i*nW+j]];
+		}	
+	}
+	
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW);
+	
+	
+	free(ImgIn);
+	free(ImgOut);
+
+}
+
 void expansionGris(char* entre, char* sortie){	
 	
 	int a0, a1, alpha, beta;
@@ -135,7 +186,7 @@ void expansionGris(char* entre, char* sortie){
    	nTaille = nH * nW;
   
 	allocation_tableau(ImgIn, OCTET, nTaille);
-	lire_image_ppm(entre, ImgIn, nH * nW);
+	lire_image_pgm(entre, ImgIn, nH * nW);
 	allocation_tableau(ImgOut, OCTET, nTaille);
 	
 	
@@ -236,6 +287,7 @@ int main(int argc, char* argv[]){
 	char* cNomImgLue = new char[256];
 	char* cNomImgEcrite = new char[256];
 	char* cNomHisto = new char[256];
+	float* densite;
 	int nH, nW, nTaille, S;
    
 	sscanf (argv[1],"%s",cNomImgLue) ;
@@ -252,7 +304,8 @@ int main(int argc, char* argv[]){
      	//seuilCouleur(cNomImgLue,cNomImgEcrite);
      	//histoCouleur(cNomImgEcrite, cNomHisto);
      	
-     	ddp(cNomImgLue,cNomImgEcrite,cNomHisto);
+     	//ddp(cNomImgLue,cNomImgEcrite,cNomHisto);
+     	egalisation(cNomImgLue,cNomImgEcrite);
 
    return 1;
 }
