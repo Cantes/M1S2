@@ -241,7 +241,7 @@ bool Intersection(int n){
 		int numSeg=Tri[i]/2; //Segment a traite
 		if(Tri[i]%2==0){//insertion de numSeg
 			ordre.Insere(numSeg);
-			if(Intersectent(2*numSeg, 2*ordre.Predecesseur(numSeg)) || Intersectent(2*numSeg, 2*ordre.Successeur(numSeg)) ){
+			if(Intersectent(2*numSeg, 2*ordre.Predecesseur(numSeg))){
 				return true;
 			}
 		}else{ //suppression de numSeg
