@@ -261,18 +261,6 @@ int main(){
 	SegmentsAuHasard(n);
 	AffichageSegments(n);
 
-	for(int i=0; i<n; i++){
-		for(int j=0; j<n;j++){
-			if(i != j){
-				if (Intersectent(2*i,2*j)){
-					cout << "Les segments : " << i << " et " << j << " s'intersectent." << endl;
-				}
-			}
-		}
-	}
-	
-
-
 	if(Intersection(n)){
 		cout << "Il y a une intersection." << endl;
 	}else{
