@@ -252,7 +252,7 @@ void expansionGris(char* entre, char* sortie){
 
 	OCTET *ImgIn, *ImgOut;
    
-   	lire_nb_lignes_colonnes_image_ppm(entre, &nH, &nW);
+   	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
    	nTaille = nH * nW;
   
 	allocation_tableau(ImgIn, OCTET, nTaille);
@@ -260,20 +260,22 @@ void expansionGris(char* entre, char* sortie){
 	allocation_tableau(ImgOut, OCTET, nTaille);
 	
 	
-	a0 = 50;
-	a1 = 200;
+	a0 = 0;
+	a1 = 10;
 	
 	alpha = (-255*a0)/(a1-a0);
 	beta = 255/(a1-a0);
 	
+	cout << "alpha : " << alpha << endl;
+	cout << "beta : " << beta << endl;
 	
 	for(int i =0; i < nH; i++){
 		for(int j =0; j < nW; j++){
-			ImgOut[i*nW+j] = alpha + beta*ImgIn[i*nW*j];
+			ImgOut[i*nW+j] = alpha + beta*ImgIn[i*nW+j];
 		}	
 	}
 	
-	ecrire_image_ppm(sortie, ImgOut,  nH, nW);
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW);
 	free(ImgIn);	
 		
 }
@@ -294,11 +296,14 @@ void expansionCouleur(char* entre, char* sortie){
 	allocation_tableau(ImgOut, OCTET, nTaille3);
 	
 	
-	a0 = 50;
-	a1 = 200;
+	a0 = 0;
+	a1 = 11;
 	
 	alpha = (-255*a0)/(a1-a0);
 	beta = 255/(a1-a0);
+	
+	cout << "alpha : " << alpha << endl;
+	cout << "beta : " << beta << endl;
 	
 	for (int i=0; i < nTaille3; i+=3){
 		ImgOut[i]= abs(alpha + beta*ImgIn[i]);
@@ -364,10 +369,10 @@ int main(int argc, char* argv[]){
 	sscanf (argv[2],"%s",cNomImgEcrite);
 	sscanf (argv[3],"%s",cNomHisto);
      
-     	//expansion(cNomImgLue,cNomImgEcrite);
+     	//expansionGris(cNomImgLue,cNomImgEcrite);
      	//histoGris(cNomImgEcrite,cNomHisto);
-     	//histoCouleur(cNomImgLue, cNomHisto);
      	
+     	//histoCouleur(cNomImgLue, cNomHisto);
      	//expansionCouleur(cNomImgLue,cNomImgEcrite);
      	//histoCouleur(cNomImgEcrite, cNomHisto);
      	
@@ -377,12 +382,12 @@ int main(int argc, char* argv[]){
      	//ddp(cNomImgLue,cNomImgEcrite,cNomHisto);
      	//egalisation(cNomImgLue,cNomImgEcrite);
      	
-     	//histoGris(cNomImgEcrite,cNomHisto);
+     	histoGris(cNomImgEcrite,cNomHisto);
      	//egalisation(cNomImgLue,cNomImgEcrite);
      	//histoGris(cNomImgEcrite,cNomHisto);
      	
      	//specialisation(cNomImgLue,cNomImgEcrite, cNomHisto);
-     	histoGris(cNomImgEcrite,cNomHisto);
+     	//histoGris(cNomImgEcrite,cNomHisto);
 
    return 1;
 }
