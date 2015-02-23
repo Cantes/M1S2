@@ -100,25 +100,76 @@ void PointAuHasard(int n, point sommet[]){
 
 //Renvoie Vrai si p2 est strictement a droite de la droite p_0p_1
 bool AnglePolaireInferieur(point p0, point p1, point p2){
-
 	if( ((p2.abscisse-p0.abscisse)*(p1.ordonnee-p0.ordonnee) - (p2.ordonnee-p0.ordonnee)*(p2.abscisse-p0.abscisse)) < 0 ){
 		return true;
 	}else{
 		return false;
 	}
-
-
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+bool appartient(int envconv[], int n, int p){
+
+	for(int i=0; i<n; i++){
+		if(envconv[i] == p){
+			return true;
+		}
+	}
+	
+	return false;
+
+}
+
+
 
 //Parcours de Jarvis
 
 void Jarvis(int n, point sommet[],int envconv[]){
 
-  //
-  //A COMPLETER
-  //
+	point Pmin;
+	point Pcourant, Psuivant;
+	int p = 1;
+	int pos;
+	int ind = 0;
+	
+	Pmin.ordonnee = 9999;
+	for(int i=0; i<n; i++){
+		if(sommet[i].ordonnee < Pmin.ordonnee){
+			Pmin = sommet[i];
+			ind = i;
+		}
+	}
+	
+	Pcourant = Pmin;
+	envconv[0] = ind;
+	cout << ind << endl;
+	
+	do{
+		while(appartient(envconv, n, ind)){
+			pos = rand() % n;
+			if(! appartient(envconv, n, pos)){
+				Psuivant = sommet[pos];
+				ind = pos;
+			}		
+		}
+					
+		for(int i =0; i<n; i++){
+			if(AnglePolaireInferieur(Pcourant,Psuivant,sommet[i])){
+				Psuivant = sommet[i];
+				ind = i;
+			}
+		}
+		
+		envconv[p] = ind;
+		Pcourant = Psuivant;
+		p++;
+	
+	
+	}while((Pcourant.abscisse != Pmin.abscisse) && (Pcourant.ordonnee != Pmin.ordonnee) );
+	
+	envconv[p] = envconv[0];
 
 }
 
