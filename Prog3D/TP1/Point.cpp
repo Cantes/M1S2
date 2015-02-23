@@ -70,7 +70,3 @@ Point Point::projectOnLine(Vector vecteur, Point pLine){
 void Point::affiche(){
 	cout << "(" << this->getX() << "," << this->getY() << "," << this->getZ() << ")" << endl;
 }
-
-Point Point::projectOnPlan(Point pointOnPlane, Vector normalOfPlane){
-	return pointOnPlane;
-}
