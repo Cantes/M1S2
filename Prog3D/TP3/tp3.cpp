@@ -140,18 +140,58 @@ GLvoid window_key(unsigned char key, int x, int y){
   }     
 }
 
+void traceCylindre(Point* TabPointsOfCurve, Point* a, Point* b){
+	int u = 1;
+	int v = 20;
+	
+	Vector vecteur( (b->getX() - a->getX()), b->getY() - a->getY(), b->getZ() - a->getZ());
+
+	
+	glBegin(GL_POINTS);
+	for(int i =0; i<v; i++){
+		for(int j=-(u/2); j<=u/2; j++){
+			glColor3f(1, 0, 0);
+			cout << "(" << TabPointsOfCurve[i].getX() << "," << TabPointsOfCurve[i].getY() << "," <<  TabPointsOfCurve[i].getZ()<< ")" << endl;
+			cout << TabPointsOfCurve[i].getX() * vecteur.getX() * j << "," << TabPointsOfCurve[i].getY()   << "," << TabPointsOfCurve[i].getZ()  << endl;
+			glVertex3f(TabPointsOfCurve[i].getX() * vecteur.getX() * j, TabPointsOfCurve[i].getY() ,TabPointsOfCurve[i].getZ());	
+				
+		}
+	}
+	glEnd();
+	
+}
+
 void render_scene(){
 
 	glColor3f(1.0, 1.0, 1.0);
 
+	Point* tableau = new Point[4];
+	int pointsCourbe = 50;
+	
+	Point P0(1,1,0);
+	Point P1(2,3,0);
+	Point P2(4,2,0);
+	Point P3(3,0,0);
+	
+	
+	tableau[0] = P0;
+	tableau[1] = P1;
+	tableau[2] = P2;
+	tableau[3] = P3;
+	
+	Point* tab = BezierCurveByBernstein(tableau,3,pointsCourbe);
+	
+	Point* a = new Point(0,0,0);
+	Point* b = new Point(1,0,0);
+	
+	traceCylindre(tab,a,b);
+	
+	glColor3f(1.0, 1.0, 1.0);
+	DrawCurve(tab, pointsCourbe);
+	
 	
 	glBegin(GL_POINTS);
 		glColor3f(1, 0, 0);
-		glVertex3f(P0.getX(), P0.getY(),P0.getZ());
-		glVertex3f(P1.getX(), P1.getY(), P1.getZ());
-		glVertex3f(P2.getX(), P2.getY(), P2.getZ());
-		glVertex3f(P3.getX(), P3.getY(), P3.getZ());
-		
 	glEnd();
 	
 	glColor3f(0, 1, 0);	
@@ -172,12 +212,46 @@ void DrawCurve(Point* TabPointsOfCurve,long nbPoints){
 }
 
 
+int facto(int n){
 
+	if(n == 0){
+		return 1;
+	}else{
+		return n * facto(n -1);
+	}
 
+}
 
-
-void traceCylindre(Point* TabPointsOfCurve){
+double polyB(int n, int i,double u){
 	
+	double fact = facto(n)/(facto(i)*facto(n-i));
+	
+	return fact*pow(u,i)*pow((1-u),(n-i));
+}
+
+
+Point* BezierCurveByBernstein(Point* TabControlPoint, long nbControl, long nbU){
+
+	Point* tab = new Point[nbU];
+	Point* save;
+	double poly;
+	
+	for(int i=0; i <= nbU; i++){
+		save = new Point(0,0,0);
+		poly = 0;
+		for(int j=0; j <= nbControl; j++){
+			poly = polyB(nbControl, j,(double) i / nbU);
+			save = new Point( save->getX() + TabControlPoint[j].getX()*poly,
+					  save->getY() + TabControlPoint[j].getY()*poly,
+					  save->getZ() + TabControlPoint[j].getZ()*poly
+					  ); 
+		}
+		
+		tab[i] = *save;
+		free(save);
+	}
+	
+	return tab;
 }
 
 
