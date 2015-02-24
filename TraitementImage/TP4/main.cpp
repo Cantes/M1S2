@@ -150,13 +150,12 @@ void floutageCouleur(char* entre, char* sortie){
 	allocation_tableau(ImgOut, OCTET, nTaille3);
 	
 	for(int i=0; i<nTaille3; i+=3){
-		
+
 		ImgOut[i] = ( ImgIn[i] + ImgIn[i - 3] + ImgIn[i + 3] + ImgIn[i - 12] + ImgIn[i + 12] + ImgIn[i + 15] + ImgIn[i - 15] + ImgIn[i - 18] + ImgIn[i - 18]  ) / 9;
 		ImgOut[i+1] = ( ImgIn[i+1] + ImgIn[i+1 - 3] + ImgIn[i+1 + 3] + ImgIn[i+1 - 12] + ImgIn[i+1 + 12] + ImgIn[i+1 + 15] + ImgIn[i+1 - 15] + ImgIn[i+1 - 18] + ImgIn[i+1 - 18]  ) / 9;
 		ImgOut[i+2] =  ( ImgIn[i+2] + ImgIn[i+1 - 3] + ImgIn[i+2 + 3] + ImgIn[i+2 - 12] + ImgIn[i+2 + 12] + ImgIn[i+2 + 15] + ImgIn[i+2 - 15] + ImgIn[i+2 - 18] + ImgIn[i+2 - 18]   ) / 9;
 	}
-
-			
+		
 	ecrire_image_ppm(sortie, ImgOut, nH, nW);
 	
 	free(ImgIn);
@@ -170,7 +169,6 @@ void floutageFond(char* entre,char* imgGris ,char* sortie){
 	int nHG, nWG, nTailleG;
 	
 	OCTET *ImgIn, *ImgOut, *ImgGris;
-	
 	
 	lire_nb_lignes_colonnes_image_ppm(entre, &nH, &nW);
    	nTaille = nH * nW;
@@ -204,10 +202,9 @@ void floutageFond(char* entre,char* imgGris ,char* sortie){
 	
 	free(ImgIn);
 	free(ImgOut);
-
 }
 
-void dilate(char* entre,char* sortie){
+void dilatation(char* entre,char* sortie){
 
 	int nH, nW, nTaille,nB;
 	
@@ -240,17 +237,13 @@ void dilate(char* entre,char* sortie){
 		}
 	}	
 		
-	
-
-	
 	ecrire_image_pgm(sortie, ImgOut,  nH, nW); 
 	
 	free(ImgIn);
 	free(ImgOut);
 }
 
-void erode(char* entre, char* sortie){
-
+void erosion(char* entre, char* sortie){
 
 	int nH, nW, nTaille,nB;
 	
