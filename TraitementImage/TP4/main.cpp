@@ -140,22 +140,161 @@ void floutageCouleur(char* entre, char* sortie){
 	OCTET *ImgIn, *ImgOut;
 	
 	
-	lire_nb_lignes_colonnes_image_pgm(imgGris, &nH, &nW);
+	lire_nb_lignes_colonnes_image_ppm(entre, &nH, &nW);
    	nTaille = nH * nW;
+   	
+   	int nTaille3 = nTaille * 3;
 	
-	allocation_tableau(ImgIn, OCTET, nTaille);
-	lire_image_pgm(imgGris, ImgIn, nH * nW);	
-	allocation_tableau(ImgOutGris, OCTET, nTaille);
+	allocation_tableau(ImgIn, OCTET, nTaille3);
+	lire_image_ppm(entre, ImgIn, nH * nW);	
+	allocation_tableau(ImgOut, OCTET, nTaille3);
 	
-	
+	for(int i=0; i<nTaille3; i+=3){
+		
+		ImgOut[i] = ( ImgIn[i] + ImgIn[i - 3] + ImgIn[i + 3] + ImgIn[i - 12] + ImgIn[i + 12] + ImgIn[i + 15] + ImgIn[i - 15] + ImgIn[i - 18] + ImgIn[i - 18]  ) / 9;
+		ImgOut[i+1] = ( ImgIn[i+1] + ImgIn[i+1 - 3] + ImgIn[i+1 + 3] + ImgIn[i+1 - 12] + ImgIn[i+1 + 12] + ImgIn[i+1 + 15] + ImgIn[i+1 - 15] + ImgIn[i+1 - 18] + ImgIn[i+1 - 18]  ) / 9;
+		ImgOut[i+2] =  ( ImgIn[i+2] + ImgIn[i+1 - 3] + ImgIn[i+2 + 3] + ImgIn[i+2 - 12] + ImgIn[i+2 + 12] + ImgIn[i+2 + 15] + ImgIn[i+2 - 15] + ImgIn[i+2 - 18] + ImgIn[i+2 - 18]   ) / 9;
+	}
 
+			
+	ecrire_image_ppm(sortie, ImgOut, nH, nW);
 	
+	free(ImgIn);
+	free(ImgOut);
+
+}
+
+void floutageFond(char* entre,char* imgGris ,char* sortie){
+
+	int nH, nW, nTaille;
+	int nHG, nWG, nTailleG;
+	
+	OCTET *ImgIn, *ImgOut, *ImgGris;
+	
+	
+	lire_nb_lignes_colonnes_image_ppm(entre, &nH, &nW);
+   	nTaille = nH * nW;
+   	
+   	lire_nb_lignes_colonnes_image_pgm(imgGris, &nHG, &nWG);
+   	nTailleG = nHG * nWG;
+   	
+   	int nTaille3 = nTaille * 3;
+	
+	allocation_tableau(ImgIn, OCTET, nTaille3);
+	lire_image_ppm(entre, ImgIn, nH * nW);
+	allocation_tableau(ImgGris, OCTET, nTailleG);
+	lire_image_pgm(imgGris, ImgGris, nHG * nWG);		
+	allocation_tableau(ImgOut, OCTET, nTaille3);
+	
+	for(int i=0; i<nTaille3; i+=3){
+	
+		if(ImgGris[i/3] == 255){
+			ImgOut[i] = ( ImgIn[i] + ImgIn[i - 3] + ImgIn[i + 3] + ImgIn[i - 12] + ImgIn[i + 12] + ImgIn[i + 15] + ImgIn[i - 15] + ImgIn[i - 18] + ImgIn[i - 18]  ) / 9;
+			ImgOut[i+1] = ( ImgIn[i+1] + ImgIn[i+1 - 3] + ImgIn[i+1 + 3] + ImgIn[i+1 - 12] + ImgIn[i+1 + 12] + ImgIn[i+1 + 15] + ImgIn[i+1 - 15] + ImgIn[i+1 - 18] + ImgIn[i+1 - 18]  ) / 9;
+			ImgOut[i+2] =  ( ImgIn[i+2] + ImgIn[i+1 - 3] + ImgIn[i+2 + 3] + ImgIn[i+2 - 12] + ImgIn[i+2 + 12] + ImgIn[i+2 + 15] + ImgIn[i+2 - 15] + ImgIn[i+2 - 18] + ImgIn[i+2 - 18]   ) / 9;
+		}else{
+			ImgOut[i] = ImgIn[i];
+			ImgOut[i+1] = ImgIn[i+1];
+			ImgOut[i+2] = ImgIn[i+2];
+		
+		}
+	}
 		
 	ecrire_image_ppm(sortie, ImgOut, nH, nW);
 	
 	free(ImgIn);
 	free(ImgOut);
 
+}
+
+void dilate(char* entre,char* sortie){
+
+	int nH, nW, nTaille,nB;
+	
+	OCTET *ImgIn, *ImgOut;
+	
+   	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+	nTaille = nH * nW;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	lire_image_pgm(entre, ImgIn, nH * nW);
+
+	
+	for (int i=0; i < nH; i++){
+		for (int j=0; j < nW; j++){
+			nB = 0;
+			for(int k=-1; k<2; k++){
+				for(int l=-1; l<2; l++){
+					if(ImgIn[(i + k)*nW+(j+l)] == 0 ){
+						nB++;
+  					}
+				}
+			}
+        	
+			if(nB >= 4){
+				ImgOut[i*nW+j] = 0;
+			}else{
+				ImgOut[i*nW+j] = ImgIn[i*nW+j];
+			}
+		}
+	}	
+		
+	
+
+	
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW); 
+	
+	free(ImgIn);
+	free(ImgOut);
+}
+
+void erode(char* entre, char* sortie){
+
+
+	int nH, nW, nTaille,nB;
+	
+	OCTET *ImgIn, *ImgOut;
+	
+   	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+	nTaille = nH * nW;
+  
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	lire_image_pgm(entre, ImgIn, nH * nW);
+
+	
+	for (int i=0; i < nH; i++){
+		for (int j=0; j < nW; j++){
+			nB = 0;
+			for(int k=-1; k<2; k++){
+				for(int l=-1; l<2; l++){
+					if(ImgIn[(i + k)*nW+(j+l)] == 255 ){
+						nB++;
+  					}
+				}
+			}
+        		
+			if(nB >= 4){
+				ImgOut[i*nW+j] = 255;
+			}else{
+				ImgOut[i*nW+j] = ImgIn[i*nW+j];
+			}
+		}
+	}	
+		
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW); 
+	
+	free(ImgIn);
+	free(ImgOut);
+}
+
+void ouverture(char* entre, char* sortie){
+
+	for(int i=0; i<100; i++){
+		erode(entre,sortie);
+		dilate(sortie,sortie);
+	}
 }
 
 int main(int argc, char* argv[]){
@@ -174,7 +313,13 @@ int main(int argc, char* argv[]){
 	
 	//seuilGris(cNomImgLue,cNomImgEcrite);
     	
-    	floutageCouleur(cNomImgLue,cNomImgEcrite,cNomHisto);
+    	//floutageCouleur(cNomImgLue,cNomImgEcrite);
+    	
+    	//floutageFond(cNomImgLue,cNomHisto,cNomImgEcrite);
+    	
+    	//ouverture(cNomImgLue,cNomImgEcrite);
+    	
+    	floutageFond(cNomImgLue,cNomHisto,cNomImgEcrite);	
 
-   return 1;
+	return 1;
 }
