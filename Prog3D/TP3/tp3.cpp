@@ -41,8 +41,8 @@ Si vous mettez glut dans le répertoire courant, on aura alors #include "glut.h"
 void init_scene();
 void render_scene();
 void DrawCurve(Point* TabPointsOfCurve,long nbPoints);
-Point* HermiteCubicCurve(Point P0, Point P1, Vector V0, Vector V1, long nbU);
 Point* BezierCurveByBernstein(Point* TabControlPoint, long nbControl, long nbU);
+void traceCylindre(Point* TabPointsOfCurve, Point a, Point b);
 double polyB(int n, double u);
 GLvoid initGL();
 GLvoid window_display();
@@ -120,7 +120,7 @@ GLvoid window_reshape(GLsizei width, GLsizei height)
   // ici, vous verrez pendant le cours sur les projections qu'en modifiant les valeurs, il est
   // possible de changer la taille de l'objet dans la fenêtre. Augmentez ces valeurs si l'objet est 
   // de trop grosse taille par rapport à la fenêtre.
-  glOrtho(0, 5.0, 0, 5.0, 0, 5.0);
+  glOrtho(-5.0, 5.0, -5.0, 5.0, -5.0, 5.0);
 
   // toutes les transformations suivantes s´appliquent au modèle de vue 
   glMatrixMode(GL_MODELVIEW);
@@ -140,33 +140,22 @@ GLvoid window_key(unsigned char key, int x, int y){
   }     
 }
 
-void traceCylindre(Point* TabPointsOfCurve, Point* a, Point* b){
-	int u = 1;
-	int v = 20;
-	
-	Vector vecteur( (b->getX() - a->getX()), b->getY() - a->getY(), b->getZ() - a->getZ());
 
-	
-	glBegin(GL_POINTS);
-	for(int i =0; i<v; i++){
-		for(int j=-(u/2); j<=u/2; j++){
-			glColor3f(1, 0, 0);
-			cout << "(" << TabPointsOfCurve[i].getX() << "," << TabPointsOfCurve[i].getY() << "," <<  TabPointsOfCurve[i].getZ()<< ")" << endl;
-			cout << TabPointsOfCurve[i].getX() * vecteur.getX() * j << "," << TabPointsOfCurve[i].getY()   << "," << TabPointsOfCurve[i].getZ()  << endl;
-			glVertex3f(TabPointsOfCurve[i].getX() * vecteur.getX() * j, TabPointsOfCurve[i].getY() ,TabPointsOfCurve[i].getZ());	
-				
-		}
-	}
-	glEnd();
-	
-}
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// Fonction que vous allez modifier afin de dessiner
+/////////////////////////////////////////////////////////////////////////////////////////
 void render_scene(){
-
+//Définition de la couleur
 	glColor3f(1.0, 1.0, 1.0);
-
+	
 	Point* tableau = new Point[4];
+	
 	int pointsCourbe = 50;
+
+	Vector V0(1,1,0);
+	Vector V1(1,-1,0);
+	
 	
 	Point P0(1,1,0);
 	Point P1(2,3,0);
@@ -179,23 +168,29 @@ void render_scene(){
 	tableau[2] = P2;
 	tableau[3] = P3;
 	
-	Point* tab = BezierCurveByBernstein(tableau,3,pointsCourbe);
+
+		
+	Point* tab = new Point[pointsCourbe];
 	
-	Point* a = new Point(0,0,0);
-	Point* b = new Point(1,0,0);
+	tab = BezierCurveByBernstein(tableau,3,pointsCourbe);
 	
-	traceCylindre(tab,a,b);
+	DrawCurve(tab,pointsCourbe);
 	
-	glColor3f(1.0, 1.0, 1.0);
-	DrawCurve(tab, pointsCourbe);
-	
+	Point a(0,0,0);
+	Point b(1,0,0);
+	traceCylindre(tab, a, b);
 	
 	glBegin(GL_POINTS);
 		glColor3f(1, 0, 0);
+		glVertex3f(P0.getX(), P0.getY(),P0.getZ());
+		glVertex3f(P1.getX(), P1.getY(), P1.getZ());
+		glVertex3f(P2.getX(), P2.getY(), P2.getZ());
+		glVertex3f(P3.getX(), P3.getY(), P3.getZ());
+		
 	glEnd();
 	
-	glColor3f(0, 1, 0);	
-	//DrawCurve(tab,pointsCourbe);
+	
+	
 
 }
 
@@ -210,6 +205,7 @@ void DrawCurve(Point* TabPointsOfCurve,long nbPoints){
 		}
 	glEnd();
 }
+
 
 
 int facto(int n){
@@ -232,7 +228,7 @@ double polyB(int n, int i,double u){
 
 Point* BezierCurveByBernstein(Point* TabControlPoint, long nbControl, long nbU){
 
-	Point* tab = new Point[nbU];
+	Point* tab = new Point[nbU + 1];
 	Point* save;
 	double poly;
 	
@@ -255,7 +251,21 @@ Point* BezierCurveByBernstein(Point* TabControlPoint, long nbControl, long nbU){
 }
 
 
-
-
-
+void traceCylindre(Point* TabPointsOfCurve, Point a, Point b){
+	int u = 1;
+	int v = 40;
+	
+	Vector vecteur( (b.getX() - a.getX()), b.getY() - a.getY(), b.getZ() - a.getZ());
+	
+	glColor3f(0, 1, 0);
+	glBegin(GL_LINES);
+	for(int i =0; i<v; i++){
+		for(int j=0; j<=u; j++){
+			glVertex3f(TabPointsOfCurve[i].getX() + vecteur.getX() * j, TabPointsOfCurve[i].getY() + vecteur.getY() * j ,0);	
+				
+		}
+	}
+	glEnd();
+	
+}
 
