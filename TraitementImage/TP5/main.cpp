@@ -68,9 +68,11 @@ void division(char* entre){
 	ecrire_image_pgm(sortie, ImgOut, nH, nW);
 	
 	free(ImgIn);
-	free(ImgOut);
+	free(ImgOut);	
+}
 
-	
+OCTET* divisionRecurs(OCTET* img){
+
 }
 
 int* calculsImage(OCTET* img, int nH, int nW){
