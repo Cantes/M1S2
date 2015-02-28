@@ -16,20 +16,21 @@ public class Sudoku {
 		this.matrice = new IntegerVariable[9][9];
 		this.modele = new CPModel();
 		
-		
+		//création des variables et de leurs domaines
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
 				this.matrice[i][j] = Choco.makeIntVar("var_" + i + "_" + j, 1, 9);
 				this.modele.addVariable(this.matrice[i][j]);
 			}
 		}
-
+	
+		//Création des contraites : une ligne ne comporte pas deux fois le même numéro
 		for (int i = 0; i < 9; i++) {
 			Constraint c = Choco.allDifferent(this.matrice[i]);
 			this.modele.addConstraint(c);
-
 		}
 
+		//Création des contraintes : une colonne ne comporte pas deux fois le même numéro
 		for (int j = 0; j < 9; j++) {
 
 			IntegerVariable[] l = new IntegerVariable[9];
@@ -42,6 +43,7 @@ public class Sudoku {
 			this.modele.addConstraint(c);
 		}
 
+		//Création des contraintes : un carré ne comporte pas dexu fois le même numéro
 		for (int k = 0; k < 7; k = k + 3) {
 			for (int l = 0; l < 7; l = l + 3) {
 
@@ -66,7 +68,8 @@ public class Sudoku {
 	public static void main(String[] args) {
 
 		Sudoku s = new Sudoku();
-
+	
+		//Création du solver
 		CPSolver solver = new CPSolver();
 
 		solver.read(s.modele);
