@@ -47,13 +47,16 @@ void surfaceReglee(Point* TabPointsOfCurve, Point* TabPointsOfCurve2);
 Point* BezierSurfaceByCasteljau(Point* TabControlPointU, int nbControlPointU, double nbU, 
 				Point* TabControlPointV, int nbControlPointV, double nbV) ;
 Point* BezierCurveByCasteljau(Point* TabControlPoint, long nbControl, double nbU);
+void afficheSurfaceBezier(Point* tab, int tailleU, int tailleV);
 double polyB(int n, double u);
 GLvoid initGL();
 GLvoid window_display();
 GLvoid window_reshape(GLsizei width, GLsizei height); 
 GLvoid window_key(unsigned char key, int x, int y);
 
-int affiche = 4;
+float axeX = 5.0;
+float axeY = 5.0;
+float axeZ = 5.0;
 
 int main(int argc, char **argv){
   
@@ -123,13 +126,9 @@ GLvoid window_reshape(GLsizei width, GLsizei height){
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  // ici, vous verrez pendant le cours sur les projections qu'en modifiant les valeurs, il est
-  // possible de changer la taille de l'objet dans la fenêtre. Augmentez ces valeurs si l'objet est 
-  // de trop grosse taille par rapport à la fenêtre.
   glOrtho(-5.0, 5.0, -5.0, 5.0, -5.0, 5.0);
-
-  // toutes les transformations suivantes s´appliquent au modèle de vue 
   glMatrixMode(GL_MODELVIEW);
+  
 }
 
 // fonction de call-back pour la gestion des événements clavier
@@ -144,7 +143,9 @@ GLvoid window_key(unsigned char key, int x, int y){
       glutFullScreen ( );
   break;
   
-  case 100:                    
+  case 100:
+	gluLookAt ( 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 );
+	glutPostRedisplay();            
     break;
     
   case 113: 
@@ -153,19 +154,25 @@ GLvoid window_key(unsigned char key, int x, int y){
   default:
     printf ("La touche %d n´est pas active.\n", key);
     break;
-  }     
+  }  
+  
+  
+  
+     
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Fonction que vous allez modifier afin de dessiner
 /////////////////////////////////////////////////////////////////////////////////////////
 void render_scene(){
-/*
+
 	glColor3f(1.0, 1.0, 1.0);
 
 	Point* tableauU = new Point[4];
 	Point* tableauV = new Point[4];
-	int pointsCourbe = 4;
+	int tailleU = 4;
+	int tailleV = 4;
+	int pointsCourbe = 10;
 	
 	Point P0(0,0,0);
 	Point P1(1,0,0);
@@ -176,8 +183,8 @@ void render_scene(){
 	tableauU[1] = P1;
 	tableauU[2] = P2;
 	tableauU[3] = P3;
-	
-	
+
+	glPointSize(5);
 	glBegin(GL_POINTS);
 		glColor3f(0, 1, 0);
 		glVertex3f(P0.getX(), P0.getY(),P0.getZ());
@@ -203,7 +210,7 @@ void render_scene(){
 	tableauV[2] = P2;
 	tableauV[3] = P3;
 	
-	
+	glPointSize(5);
 	glBegin(GL_POINTS);
 		glColor3f(0, 1, 0);
 		glVertex3f(P0.getX(), P0.getY(),P0.getZ());
@@ -219,111 +226,51 @@ void render_scene(){
 	
 	DrawCurve(tabV,pointsCourbe);
 	
-	Point* tab = new Point[pointsCourbe];
-	
+	Point* tab = new Point[pointsCourbe * pointsCourbe];
+	int ind = 0;
+	double nbU, nbV;
 	for(int i=0; i<pointsCourbe; i++){
-		double nbU = (double) i/pointsCourbe;
-		tab[i] = *BezierSurfaceByCasteljau(tableauU,4, nbU,tableauV,4, nbU); 
+		nbU = (double) i/pointsCourbe;
+		for(int j = 0; j<pointsCourbe; j++){
+			nbV = (double) j/pointsCourbe;
+			tab[ind] = *BezierSurfaceByCasteljau(tableauU,4, nbU,tableauV,4, nbV); 
+			ind++;
+		}	
 	}
 	
+	afficheSurfaceBezier(tab, pointsCourbe*pointsCourbe, tailleV);
+
+}
+
+
+void afficheSurfaceBezier(Point* tab, int tailleU, int tailleV){
+
 	glPointSize(5);
+	/*
 	glColor3f(1, 0, 0);
-	for(int i =0; i<pointsCourbe; i++){
+	for(int i =0; i<=tailleU; i++){
+		glBegin(GL_LINE_STRIP);
+			for(int j=0; j<=tailleV; j++){
+				glVertex3f(tab[(i*5)+j].getX(),tab[(i*5)+j].getY(),tab[(i*5)+j].getZ());			
+			}
+		glEnd();
+	}*/
+	
+	for(int i=0; i<=tailleU; i++){
 		glBegin(GL_POINTS);
-			std::cout << tab[i].getX() << "," << tab[i].getY() << std::endl;
 			glVertex3f(tab[i].getX(),tab[i].getY(),tab[i].getZ());			
 		glEnd();
 	}
-*/
 	
-//------------------------------------------------------------------------------------------------------------		
-	
-
-	glColor3f(1.0, 1.0, 1.0);
-	
-	Point* tableau = new Point[4];
-	Point* tableauU = new Point[4];
-	Point* tableauV = new Point[4];
-	
-	int pointsCourbe = 50;
-	
-	
-	Point P0(1,1,0);
-	Point P1(2,3,0);
-	Point P2(4,2,0);
-	Point P3(3,0,0);
-	
-	tableauU[0] = P0;
-	tableauU[1] = P1;
-	tableauU[2] = P2;
-	tableauU[3] = P3;
-		
-	Point* tabU = new Point[pointsCourbe];
-	
-	tabU = BezierCurveByBernstein(tableauU,3,pointsCourbe);
-	
-	DrawCurve(tabU,pointsCourbe);
-	
-	glBegin(GL_POINTS);
-		glColor3f(1, 0, 0);
-		glVertex3f(P0.getX(), P0.getY(),P0.getZ());
-		glVertex3f(P1.getX(), P1.getY(), P1.getZ());
-		glVertex3f(P2.getX(), P2.getY(), P2.getZ());
-		glVertex3f(P3.getX(), P3.getY(), P3.getZ());
-		
-	glEnd();
-	
-	
-	P0 = Point(0,0,0);
-	P1 = Point(1,0,0);
-	P2 = Point(2,-1,0);
-	P3 = Point(3,-2,0);
-	
-	tableauV[0] = P0;
-	tableauV[1] = P1;
-	tableauV[2] = P2;
-	tableauV[3] = P3;
-	
-	Point* tabV = new Point[pointsCourbe];
-	
-	tabV = BezierCurveByBernstein(tableauV,3,pointsCourbe);
-	
-	DrawCurve(tabV,pointsCourbe);
-
-	//surfaceReglee(tab, tab2);
-	
-	/*
-	Point a(0,0,0);
-	Point b(1,0,0);
-	traceCylindre(tab, a, b);
-	*/
-	
-	Point* tab = new Point[pointsCourbe];
-	
-	for(int i=0; i<=pointsCourbe; i++){
-		double nbU = (double) i/pointsCourbe;
-		tab[i] = *BezierSurfaceByCasteljau(tableauU,4, nbU,tableauV,4, nbU); 
-	}
-	
-	
-	for(int i=0; i<pointsCourbe; i++){
-	
-		glColor3f(0, 0, 1);
-		glBegin(GL_POINTS);
-			glVertex3f(tab[i].getX(), tab[i].getY(),tab[i].getZ());		
-		glEnd(); 
-	}
-	
-	glPointSize(5);
-	glBegin(GL_POINTS);
-		glColor3f(0, 1, 0);
-		glVertex3f(P0.getX(), P0.getY(),P0.getZ());
-		glVertex3f(P1.getX(), P1.getY(), P1.getZ());
-		glVertex3f(P2.getX(), P2.getY(), P2.getZ());
-		glVertex3f(P3.getX(), P3.getY(), P3.getZ());
-		
-	glEnd();
-
+/*
+	glColor3f(0, 0, 1);
+	for(int i =0; i<=tailleV; i++){
+		glBegin(GL_LINE_STRIP);
+			for(int j=0; j<=tailleU; j++){
+				glVertex3f(tab[i+(5*j)].getX(),tab[i+(5*j)].getY(),tab[i+(5*j)].getZ());			
+			}
+		glEnd();
+	}*/
 
 }
 
@@ -487,12 +434,7 @@ Point* BezierCurveByCasteljau(Point* TabControlPoint, long nbControl, double nbU
 
 Point* BezierSurfaceByCasteljau(Point* TabControlPointU, int nbControlPointU, double nbU, 
 				Point* TabControlPointV, int nbControlPointV, double nbV){
-	
-	//tabU = BezierCurveByBernstein(TabControlPointU,nbControlPointU,nbU);
-	
-	
-	
-	/*				
+					
 	if(nbControlPointU == 1){
 		return BezierCurveByCasteljau(TabControlPointV,nbControlPointV,nbV);
 	}else if(nbControlPointV == 1){
@@ -502,43 +444,67 @@ Point* BezierSurfaceByCasteljau(Point* TabControlPointU, int nbControlPointU, do
 	Point* tabU = new Point[nbControlPointU-1];
 	Point* tabV = new Point[nbControlPointV-1];
 	
-	for(int i =0; i<nbControlPointU-1; i++){
-		Vector vecteurU( TabControlPointU[i+1].getX() - TabControlPointU[i].getX(),
-				 TabControlPointU[i+1].getY() - TabControlPointU[i].getY(),
-				 TabControlPointU[i+1].getZ() - TabControlPointU[i].getZ());
-		
-		Vector vecteurV( TabControlPointV[1].getX() - TabControlPointV[0].getX(),
-				 TabControlPointV[1].getY() - TabControlPointV[0].getY(),
-				 TabControlPointV[1].getZ() - TabControlPointV[0].getZ());
-				 		 
-		tabU[i] = *(new Point( TabControlPointU[i].getX() + vecteurU.getX() * nbU, 
-		     	               TabControlPointU[i].getY() + vecteurV.getY() * nbV, 
-		     	               TabControlPointU[i].getZ() + vecteurU.getZ() * nbU
-				)
-			);
-	}	
+	for(int i=0; i<nbControlPointU-1;i++){
+		Vector vecteurU( TabControlPointU[i+1].getX() - TabControlPointU[i].getX(), 
+				 TabControlPointU[i+1].getY() - TabControlPointU[i].getY(), 
+				 TabControlPointU[i+1].getZ() - TabControlPointU[i].getZ()); 
+				
+		Vector vecteurV( TabControlPointV[1].getX() - TabControlPointV[0].getX(), 
+				 TabControlPointV[1].getY() - TabControlPointV[0].getY(), 
+				 TabControlPointV[1].getZ() - TabControlPointV[0].getZ()); 
+					 
+		tabU[i] = *(new Point( TabControlPointU[i].getX() + vecteurU.getX() * nbU,
+				      TabControlPointU[i].getY() + vecteurV.getY() * nbV,
+					0));
+	}
 	
-	for(int i =0; i<nbControlPointV-1; i++){
-		Vector vecteurV( TabControlPointV[i+1].getX() - TabControlPointV[i].getX(),
-				 TabControlPointV[i+1].getY() - TabControlPointV[i].getY(),
-				 TabControlPointV[i+1].getZ() - TabControlPointV[i].getZ());
-				 
-		Vector vecteurU( TabControlPointU[1].getX() - TabControlPointU[0].getX(),
-				 TabControlPointU[1].getY() - TabControlPointU[0].getY(),
-				 TabControlPointU[1].getZ() - TabControlPointU[0].getZ());
-				 
-			tabV[i] = *(new Point( TabControlPointV[i].getX() + vecteurU.getX() * nbU, 
-		  	     	               TabControlPointV[i].getY() + vecteurV.getY() * nbV, 
-		  	     	               TabControlPointV[i].getZ() + vecteurV.getZ() * nbV
-		       	 		)
-		       	 	);
-	}	
-	
+	for(int i=0; i<nbControlPointU-1;i++){
+		Vector vecteurU( TabControlPointU[1].getX() - TabControlPointU[0].getX(), 
+				 TabControlPointU[1].getY() - TabControlPointU[0].getY(), 
+				 TabControlPointU[1].getZ() - TabControlPointU[0].getZ()); 
+				
+		Vector vecteurV( TabControlPointV[i+1].getX() - TabControlPointV[i].getX(), 
+				 TabControlPointV[i+1].getY() - TabControlPointV[i].getY(), 
+				 TabControlPointV[i+1].getZ() - TabControlPointV[i].getZ()); 
+					 
+		tabV[i] = *(new Point( TabControlPointV[i].getX() + vecteurU.getX() * nbU,
+				      TabControlPointV[i].getY() + vecteurV.getY() * nbV,
+					0));
+	}
+				
+
 	return BezierSurfaceByCasteljau(tabU, nbControlPointU - 1, nbU, 
 					tabV, nbControlPointV - 1, nbV);					
 
-	*/
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
