@@ -7,6 +7,10 @@
 using namespace std;
 
 int const n=20;
+const int absMin = 50;
+const int absMax = 550;
+const int ordMin = 150;
+const int ordMax = 650;
 
 typedef struct {
   int  abscisse;
@@ -20,7 +24,7 @@ void AffichagePoints(int n, point sommet[]){
   //Un fichier Points.ps est cree, visualisable avec un afficheur postscript (ex: ggv, kghostview...)
 
    ofstream output;
-   output.open("Points.ps");//
+   output.open("PointsGraham.ps");//
    output << "%!PS-Adobe-3.0" << endl;
    output << endl;  
    for(int i=0;i<n;i++){
@@ -50,7 +54,7 @@ void AffichageEnvConv(int n, point sommet[], int envconv[]){
 
 
    ofstream output;
-   output.open("EnvConv.ps");//
+   output.open("EnvConvGraham.ps");//
    output << "%!PS-Adobe-3.0" << endl;
    output << endl;  
    for(int i=0;i<n;i++){
@@ -83,20 +87,21 @@ void AffichageEnvConv(int n, point sommet[], int envconv[]){
 
 
 //Renvoie Vrai si p2 est strictement a droite de la droite oriente p_0p_1
-bool AnglePolaireInferieur(point p0, point p1, point p2){
+bool AnglePolaireInferieur(point p1, point p2, point p3){
 
-  //
-  // A COMPLETER
-  //
-
+	if( ((p3.abscisse-p1.abscisse)*(p2.ordonnee-p1.ordonnee) - (p3.ordonnee-p1.ordonnee)*(p2.abscisse-p1.abscisse)) > 0 ){
+		return true;
+	}else{
+		return false;
+	}
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void TriRapidePolaire(int min, int n, point sommet[], int t, int TriPolaire[]){
+void TriRapidePolaire(int min, int n, point* sommet, int t, int* TriPolaire){
   //t: nombre d elements a trier, au premier appel on fait donc:
   // Tripolaire(min,n,sommet,n-1,TriPolaire);
-  //ou TriPolaire contient les indeices des sommets a trier (tous sauf min).
+  //ou TriPolaire contient les indices des sommets a trier (tous sauf min).
 
   if(t>1){
     int pivot=TriPolaire[0]; //indice du sommet pivot
@@ -131,23 +136,56 @@ void TriRapidePolaire(int min, int n, point sommet[], int t, int TriPolaire[]){
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void PointAuHasard(int n, point sommet[]){
-  srand(time(NULL));
+void PointAuHasard(int n, point* sommet){
+	srand(time(NULL));
 
-  //
-  // A COMPLETER
-  //
-
-
+	for(int i=0; i<n; i++){
+		sommet[i].abscisse = absMin + (rand() % (absMax - absMin));
+		sommet[i].ordonnee = ordMin + (rand() % (ordMax - ordMin));
+	}
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void Graham(int n, point sommet[],int envconv[]){
+void Graham(int n, point* sommet,int* envconv){
 
-  //
-  // A COMPLETER
-  //
+  	int pMin;
+	int p = 3;
+	int ind = 0;
+	int* triPolaire = new int[n-1];
+	
+	pMin = 0;
+	for(int i=0; i<n; i++){
+		if(sommet[i].ordonnee < sommet[pMin].ordonnee){
+			pMin = i;
+		}
+	}
+	
+	for(int i=0; i<n; i++){
+		if(i != pMin){
+			triPolaire[ind] = i;
+			ind++;	
+		}
+	}
+	
+	TriRapidePolaire(pMin, n, sommet, n-1,triPolaire); 
+
+	envconv[0] = pMin;
+	envconv[1] = triPolaire[0];
+	envconv[2] = triPolaire[1];
+
+	for(int i=2; i<n-1; i++){
+
+		while(AnglePolaireInferieur(sommet[envconv[p-2]],sommet[envconv[p-1]],sommet[triPolaire[i]])){
+			envconv[p] = -1;
+			p--;	
+		}
+		
+		envconv[p] = triPolaire[i] ;
+		p++;
+	}
+	
+	envconv[p] = envconv[0];
 
   }
 
@@ -158,7 +196,7 @@ int main(){
   int envconv[n+1];
   for(int i=0;i<n+1;i++){envconv[i]=-1;}
   PointAuHasard(n,sommet);
-  
+  AffichagePoints(n,sommet);
   Graham(n,sommet,envconv);
   AffichageEnvConv(n,sommet,envconv);
  

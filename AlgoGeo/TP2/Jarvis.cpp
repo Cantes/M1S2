@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <math.h> // pour cos() et sin()
+#include <math.h>
 #include <stdlib.h>
 #define PI 3.14159265
 
@@ -24,7 +24,7 @@ void AffichagePoints(int n, point sommet[]){
   //Un fichier Points.ps est cree, visualisable avec un afficheur postscript (ex: ggv, kghostview...)
 
    ofstream output;
-   output.open("Points.ps");//
+   output.open("PointsJarvis.ps");//
    output << "%!PS-Adobe-3.0" << endl;
    output << endl;  
    for(int i=0;i<n;i++){
@@ -53,7 +53,7 @@ void AffichageEnvConv(int n, point sommet[], int envconv[]){
 
 
    ofstream output;
-   output.open("EnvConv.ps");//
+   output.open("EnvConvJarvis.ps");//
    output << "%!PS-Adobe-3.0" << endl;
    output << endl;  
    for(int i=0;i<n;i++){
@@ -99,79 +99,56 @@ void PointAuHasard(int n, point sommet[]){
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 //Renvoie Vrai si p2 est strictement a droite de la droite p_0p_1
-bool AnglePolaireInferieur(point p0, point p1, point p2){
-	if( ((p2.abscisse-p0.abscisse)*(p1.ordonnee-p0.ordonnee) - (p2.ordonnee-p0.ordonnee)*(p2.abscisse-p0.abscisse)) < 0 ){
+bool AnglePolaireInferieur(point p1, point p2, point p3){
+	if( ((p3.abscisse-p1.abscisse)*(p2.ordonnee-p1.ordonnee) - (p3.ordonnee-p1.ordonnee)*(p2.abscisse-p1.abscisse)) > 0 ){
 		return true;
 	}else{
 		return false;
 	}
 }
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-bool appartient(int envconv[], int n, int p){
-
-	for(int i=0; i<n; i++){
-		if(envconv[i] == p){
-			return true;
-		}
-	}
-	
-	return false;
-
-}
-
-
-
 //Parcours de Jarvis
 
-void Jarvis(int n, point sommet[],int envconv[]){
+void Jarvis(int n, point* sommet,int* envconv){
 
-	point Pmin;
-	point Pcourant, Psuivant;
+	int pMin, pCourant, pSuivant;
 	int p = 1;
 	int pos;
 	int ind = 0;
 	
-	Pmin.ordonnee = 9999;
+	pMin = 0;
 	for(int i=0; i<n; i++){
-		if(sommet[i].ordonnee < Pmin.ordonnee){
-			Pmin = sommet[i];
-			ind = i;
+		if(sommet[i].ordonnee < sommet[pMin].ordonnee){
+			pMin = i;
 		}
 	}
-	
-	Pcourant = Pmin;
-	envconv[0] = ind;
-	cout << ind << endl;
-	
-	do{
-		while(appartient(envconv, n, ind)){
-			pos = rand() % n;
-			if(! appartient(envconv, n, pos)){
-				Psuivant = sommet[pos];
-				ind = pos;
-			}		
-		}
-					
+
+	pCourant = pMin;
+	envconv[0] = pMin;
+		
+	do{	
+		do{
+			pSuivant = rand() % n;
+		}while(pSuivant == pCourant);
+		
 		for(int i =0; i<n; i++){
-			if(AnglePolaireInferieur(Pcourant,Psuivant,sommet[i])){
-				Psuivant = sommet[i];
-				ind = i;
+			if(AnglePolaireInferieur(sommet[pCourant],sommet[pSuivant],sommet[i])){
+				pSuivant = i;
 			}
 		}
 		
-		envconv[p] = ind;
-		Pcourant = Psuivant;
+		envconv[p] = pSuivant;
+		pCourant = pSuivant;
 		p++;
 	
 	
-	}while((Pcourant.abscisse != Pmin.abscisse) && (Pcourant.ordonnee != Pmin.ordonnee) );
+	}while( pCourant != pMin );
 	
 	envconv[p] = envconv[0];
 
 }
+
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
