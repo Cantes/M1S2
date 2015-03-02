@@ -148,18 +148,14 @@ Point* BezierCurveByCasteljau(Point* TabControlPoint, long nbControl, double nbU
 	
 	Point* tab = new Point[nbControl-1];
 	
-	
 	for(int i =0; i<nbControl-1; i++){
 			tab[i] = *(new Point( TabControlPoint[i].getX() + ((TabControlPoint[i+1].getX() - TabControlPoint[i].getX()) * nbU),
 		  	     	      TabControlPoint[i].getY() + ((TabControlPoint[i+1].getY() - TabControlPoint[i].getY()) * nbU),
 		             	 0
 		       	 ));
-		       	 
-		       	 cout << tab[i].getX() << "," << tab[i].getY() << "," << tab[i].getZ() << endl;
+
 	}
-	
-	cout << endl;
-	
+		
 	return BezierCurveByCasteljau(tab, nbControl-1, nbU);
 
 }
