@@ -71,8 +71,157 @@ void division(char* entre){
 	free(ImgOut);	
 }
 
-OCTET* divisionRecurs(OCTET* img){
+OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 
+	int nTaille = nH * nW;
+	char* sortie ;
+	int ind;
+	OCTET *ImgTmpR, *ImgTmpS;
+	
+	OCTET* ImgOut;
+	
+	//if(nH > 256 || nW > 256){
+				
+		allocation_tableau(ImgTmpS, OCTET, nTaille);
+		allocation_tableau(ImgTmpR, OCTET, nTaille);
+		allocation_tableau(ImgOut, OCTET, nTaille);
+			
+		if( nH > 2 && nW > 2){
+		
+		for(int i=0; i<4; i++){
+			allocation_tableau(ImgTmpS, OCTET, nTaille);
+			if(i ==0){
+				for(int k=0; k<=0.5*nH; k++){
+					for(int l=0;l<=0.5*nW; l++){
+						ImgTmpS[k*nW+l] = img[k*nW+l];
+					}
+				}
+				
+				
+				ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
+				
+				
+				
+				for(int k=0; k<=0.5*nH; k++){
+					for(int l=0;l<=0.5*nW; l++){
+						ImgOut[k*nW+l] = ImgTmpR[ k*(nW/2) +l];
+					}
+				}
+				std::cout << "---------------------------------------------------------------------" << std::endl;
+			
+			}else if( i == 1){
+
+				
+				for(int k=0; k<=0.5*nH; k++){
+					for(int l=0.5*nW;l<=nW; l++){
+						ImgTmpS[k*nW+l] = img[k*nW+l];
+					}
+				}
+				
+				ImgTmpR =divisionRecurs(ImgTmpS,nH/2, nW/2);
+				
+				for(int k=0; k<=0.5*nH; k++){
+					for(int l=0.5*nW;l<=nW; l++){
+						ind = (k % nH/2)*(nW % nW/2) +(l % nW/2);
+						ImgOut[k*nW+l] = ImgTmpR[ k*(nW/2) +l];
+					}
+				}
+				
+				std::cout << "---------------------------------------------------------------------" << std::endl;
+				
+			}else if( i==2){
+				int a =0;
+				int b = 0;
+				for(int k=0.5*nH; k<nH; k++){
+					b = 0;
+					for(int l=0;l<0.5*nW; l++){
+						ImgTmpS[a*(nW/2)+b] = img[k*nW+l];
+						b++;
+					}
+					a++;
+				}
+								
+				ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
+			
+				a = 0;
+				b = 0;
+				for(int k=0.5*nH; k<nH; k++){
+					b =0;
+					for(int l=0;l<0.5*nW; l++){
+						ImgOut[k*nW+l] = ImgTmpR[a*(nW/2)+b];
+						b++;
+					}
+					a++;
+				}	
+				
+				std::cout << "---------------------------------------------------------------------" << std::endl;		
+			}else{
+				int a =0;
+				int b = 0;
+				for(int k=0.5*nH; k<nH; k++){
+					b =0;
+					for(int l=0.5*nW;l<nW; l++){
+						ImgTmpS[a*(nW/2)+b] =  img[k*nW+l];
+						b++;
+					}
+					a++;
+				}
+				
+				ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
+			
+				a = 0;
+				b = 0;
+				for(int k=nH/2; k<nH; k++){
+					b =0;
+					for(int l=nW/2;l<nW; l++){
+						ImgOut[k*nW+l] = ImgTmpR[a*(nW/2)+b];
+						b++;
+					}
+					a++;	
+				}	
+				
+				std::cout << "---------------------------------------------------------------------" << std::endl;		
+			}
+		}
+		
+		
+		
+		return ImgOut;
+	}else{
+
+		int* tab = calculsImage(img, nH, nW);
+
+		for (int i=0; i < nH; i++){
+			for (int j=0; j < nW; j++){
+				if(i < 0.5*nH && j< 0.5*nW){
+					ImgOut[i*nW+j] = tab[0];
+				}else if(i < 0.5*nH && j> 0.5*nW){
+					ImgOut[i*nW+j] = tab[1];
+				}else if(i > 0.5*nH && j< 0.5*nW){
+					ImgOut[i*nW+j] = tab[2];
+				}else{
+					ImgOut[i*nW+j] = tab[3];
+				}
+			}
+		}
+	
+		return ImgOut;	
+	}
+}
+
+OCTET* test(){
+
+	OCTET *test;
+	
+	allocation_tableau(test, OCTET,  512*512);
+	
+	for(int i=0; i<512; i++){
+		for(int j=0; j<512; j++){
+			test[i*512+j] = 255;
+		}
+	}
+	
+	return test;
 }
 
 int* calculsImage(OCTET* img, int nH, int nW){
@@ -82,8 +231,8 @@ int* calculsImage(OCTET* img, int nH, int nW){
 	
 	int nTaille = nH * nW;
 
-	for (int i=0; i < nH; i++){
-		for (int j=0; j < nW; j++){
+	for (int i=0; i <= nH; i++){
+		for (int j=0; j <= nW; j++){
 			if(i < 0.5*nH && j< 0.5*nW){
 				tabMoy[0] = tabMoy[0] + img[i*nW+j];
 				tabVariance[0] = tabVariance[0] + pow(img[i*nW+j],2);
@@ -106,10 +255,10 @@ int* calculsImage(OCTET* img, int nH, int nW){
 		tabMoy[i] = tabMoy[i] / (nTaille/4);
 		cout << "Moyenne R" << (i+1) << " : " << tabMoy[i] << endl;
 		cout << "Variance R" << (i+1) << " : " << (tabVariance[i]/ (nTaille/4)) - pow(tabMoy[i],2) << endl;
-		cout << endl;
+		cout <<endl;
 	}
 	
-	return tabMoy;
+	return tabVariance;
 
 }
 
@@ -126,7 +275,27 @@ int main(int argc, char* argv[]){
      
 	//couleurToGris(cNomImgLue, cNomImgEcrite);
 	
-	division(cNomImgLue);
+	//division(cNomImgLue);
+	
+	
+	OCTET *ImgIn, *ImgOut;
+		
+	lire_nb_lignes_colonnes_image_pgm(cNomImgLue, &nH, &nW);
+	nTaille = nH * nW;
+	
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	lire_image_pgm(cNomImgLue, ImgIn, nH * nW);
+		
+	allocation_tableau(ImgOut, OCTET,  nTaille);
+	
+	ImgOut = divisionRecurs(ImgIn,nH,nW);
+	
+	//ImgOut = test();
+	ecrire_image_pgm(cNomImgEcrite, ImgOut, nH, nW);
+	
+	free(ImgIn);
+	free(ImgOut);
+	
 
 	return 1;
 }
