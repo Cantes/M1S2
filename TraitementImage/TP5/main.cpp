@@ -77,18 +77,22 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 	int nTaille = nH * nW;
 	char* sortie ;
 	int ind;
+	int seuil = 800;
+	int tailleMin = 64;
 	OCTET *ImgTmpR, *ImgTmpS;
 	
 	OCTET* ImgOut;
 
-				
 	allocation_tableau(ImgTmpS, OCTET, nTaille);
 	allocation_tableau(ImgTmpR, OCTET, nTaille);
 	allocation_tableau(ImgOut, OCTET, nTaille);
 	
-	int* tab = calculsVariance(img, nH, nW);
-			
-	if( nH > 128 && nW > 128){	
+	int* tabVariance = calculsVariance(img, nH, nW);
+	int* tabImage = calculsImage(img, nH, nW);
+	
+	graphe adj
+	
+	if( nH > tailleMin && nW > tailleMin){	
 		for(int i=0; i<4; i++){
 			allocation_tableau(ImgTmpS, OCTET, nTaille);
 			if(i ==0 ){
@@ -99,7 +103,7 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 					}
 				}
 				
-				if(tab[i] > 2000){
+				if(tabVariance[i] > seuil){
 					
 					ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
 				
@@ -111,7 +115,7 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 				}else{
 					for(int k=0; k<=0.5*nH; k++){
 						for(int l=0;l<=0.5*nW; l++){
-							ImgOut[k*nW+l] = img[k*nW+l];
+							ImgOut[k*nW+l] = tabImage[0];
 						}
 					}		
 				}
@@ -125,7 +129,7 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 				}
 				
 				
-				if(tab[i] > 2000){
+				if(tabVariance[i] > seuil){
 				
 					ImgTmpR =divisionRecurs(ImgTmpS,nH/2, nW/2);
 				
@@ -138,7 +142,7 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 				}else{
 					for(int k=0; k<=0.5*nH; k++){
 						for(int l=0.5*nW;l<=nW; l++){
-							ImgOut[k*nW+l] = img[k*nW+l];
+							ImgOut[k*nW+l] = tabImage[1];
 						}
 					}				
 				}
@@ -156,7 +160,7 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 				}
 				
 				
-				if(tab[i] > 2000){
+				if(tabVariance[i] > seuil){
 				
 					ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
 			
@@ -171,15 +175,11 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 						a++;
 					}				
 				}else{
-					int a =0;
-					int b = 0;
 					for(int k=0.5*nH; k<=nH; k++){
-						b = 0;
 						for(int l=0;l<=0.5*nW; l++){
-							ImgOut[k*nW+l] = img[k*nW+l];
+							ImgOut[k*nW+l] = tabImage[2];
 							b++;
 						}
-						a++;
 					}				
 				}
 			}else {
@@ -195,7 +195,7 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 				}
 				
 				
-				if(tab[i] > 2000){
+				if(tabVariance[i] > seuil){
 					ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
 			
 					a = 0;
@@ -209,15 +209,11 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 						a++;	
 					}				
 				}else{
-					int a =0;
-					int b = 0;
 					for(int k=0.5*nH; k<=nH; k++){
 						b =0;
 						for(int l=0.5*nW;l<=nW; l++){
-							ImgOut[k*nW+l] = img[k*nW+l];
-							b++;
+							ImgOut[k*nW+l] = tabImage[3];
 						}
-						a++;
 					}				
 				}
 			}
@@ -225,25 +221,24 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 
 		return ImgOut;
 	}else{
-
-		int* tab = calculsImage(img, nH, nW);
-
-		for (int i=0; i < nH; i++){
-			for (int j=0; j < nW; j++){
-				if(i < 0.5*nH && j< 0.5*nW){
-					ImgOut[i*nW+j] = tab[0];
-				}else if(i < 0.5*nH && j> 0.5*nW){
-					ImgOut[i*nW+j] = tab[1];
-				}else if(i > 0.5*nH && j< 0.5*nW){
-					ImgOut[i*nW+j] = tab[2];
+		for (int i=0; i <= nH; i++){
+			for (int j=0; j <= nW; j++){
+				if(i <= 0.5*nH && j<= 0.5*nW){
+					ImgOut[i*nW+j] = tabImage[0];
+				}else if(i <= 0.5*nH && j>= 0.5*nW){
+					ImgOut[i*nW+j] = tabImage[1];
+				}else if(i >= 0.5*nH && j<= 0.5*nW){
+					ImgOut[i*nW+j] = tabImage[2];
 				}else{
-					ImgOut[i*nW+j] = tab[3];
+					ImgOut[i*nW+j] = tabImage[3];
 				}
 			}
 		}
-	
-		return ImgOut;	
 	}
+	
+	
+	
+	return ImgOut;	
 }
 
 
