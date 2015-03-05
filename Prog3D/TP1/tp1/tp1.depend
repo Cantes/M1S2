@@ -1,0 +1,25 @@
+# depslib dependency file v1.0
+1425399506 source:c:\users\user\desktop\imagina\s2\prog3d\tp\tp1\tp1\main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	"Vector.h"
+	"Point.h"
+	<GL/freeglut.h>
+
+1425291135 source:c:\users\user\desktop\imagina\s2\prog3d\tp\tp1\tp1\vector.cpp
+	"Vector.h"
+	<math.h>
+	<iostream>
+
+1425291026 c:\users\user\desktop\imagina\s2\prog3d\tp\tp1\tp1\vector.h
+
+1425399556 source:c:\users\user\desktop\imagina\s2\prog3d\tp\tp1\tp1\point.cpp
+	"Point.h"
+	"Vector.h"
+	<math.h>
+	<iostream>
+
+1425399535 c:\users\user\desktop\imagina\s2\prog3d\tp\tp1\tp1\point.h
+	"Vector.h"
+
