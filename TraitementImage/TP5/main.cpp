@@ -51,6 +51,7 @@ void division(char* entre){
 	allocation_tableau(ImgOut, OCTET,  nTaille);
 
 	int* tab = calculsImage(ImgIn, nH, nW);
+	int* tabVariance = calculsVariance(ImgIn, nH, nW);
 
 	for (int i=0; i <= nH; i++){
 		for (int j=0; j <= nW; j++){
@@ -77,7 +78,7 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 	int nTaille = nH * nW;
 	char* sortie ;
 	int ind;
-	int seuil = 800;
+	int seuil = 500;
 	int tailleMin = 64;
 	OCTET *ImgTmpR, *ImgTmpS;
 	
@@ -89,8 +90,6 @@ OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 	
 	int* tabVariance = calculsVariance(img, nH, nW);
 	int* tabImage = calculsImage(img, nH, nW);
-	
-	graphe adj
 	
 	if( nH > tailleMin && nW > tailleMin){	
 		for(int i=0; i<4; i++){
@@ -281,6 +280,10 @@ int* calculsVariance(OCTET* img, int nH, int nW){
 
 	int* tabMoy = new int[4];
 	int* tabVariance = new int[4];
+	
+	for(int i=0; i<4;i++){
+		tabVariance[i] = 0;
+	}
 	
 	int nTaille = nH * nW;
 
