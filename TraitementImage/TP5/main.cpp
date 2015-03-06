@@ -7,6 +7,7 @@
 using namespace std;
 
 int* calculsImage(OCTET* img, int nH, int nW);
+int* calculsVariance(OCTET* img, int nH, int nW);
 
 void couleurToGris(char* entre, char* sortie){
 	
@@ -50,6 +51,7 @@ void division(char* entre){
 	allocation_tableau(ImgOut, OCTET,  nTaille);
 
 	int* tab = calculsImage(ImgIn, nH, nW);
+	int* tabVariance = calculsVariance(ImgIn, nH, nW);
 
 	for (int i=0; i <= nH; i++){
 		for (int j=0; j <= nW; j++){
@@ -71,9 +73,173 @@ void division(char* entre){
 	free(ImgOut);	
 }
 
-OCTET* divisionRecurs(OCTET* img){
+OCTET* divisionRecurs(OCTET* img, int nH, int nW){
 
+	int nTaille = nH * nW;
+	char* sortie ;
+	int ind;
+	int seuil = 500;
+	int tailleMin = 64;
+	OCTET *ImgTmpR, *ImgTmpS;
+	
+	OCTET* ImgOut;
+
+	allocation_tableau(ImgTmpS, OCTET, nTaille);
+	allocation_tableau(ImgTmpR, OCTET, nTaille);
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	
+	int* tabVariance = calculsVariance(img, nH, nW);
+	int* tabImage = calculsImage(img, nH, nW);
+	
+	if( nH > tailleMin && nW > tailleMin){	
+		for(int i=0; i<4; i++){
+			allocation_tableau(ImgTmpS, OCTET, nTaille);
+			if(i ==0 ){
+			
+				for(int k=0; k<=0.5*nH; k++){
+					for(int l=0;l<=0.5*nW; l++){
+						ImgTmpS[k*nW+l] = img[k*nW+l];
+					}
+				}
+				
+				if(tabVariance[i] > seuil){
+					
+					ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
+				
+					for(int k=0; k<=0.5*nH; k++){
+						for(int l=0;l<=0.5*nW; l++){
+							ImgOut[k*nW+l] = ImgTmpR[ k*(nW/2) +l];
+						}
+					}
+				}else{
+					for(int k=0; k<=0.5*nH; k++){
+						for(int l=0;l<=0.5*nW; l++){
+							ImgOut[k*nW+l] = tabImage[0];
+						}
+					}		
+				}
+				
+			}else if( i == 1 ){
+		
+				for(int k=0; k<=0.5*nH; k++){
+					for(int l=0.5*nW;l<=nW; l++){
+						ImgTmpS[k*nW+l] = img[k*nW+l];
+					}
+				}
+				
+				
+				if(tabVariance[i] > seuil){
+				
+					ImgTmpR =divisionRecurs(ImgTmpS,nH/2, nW/2);
+				
+					for(int k=0; k<=0.5*nH; k++){
+						for(int l=0.5*nW;l<=nW; l++){
+							ind = (k % nH/2)*(nW % nW/2) +(l % nW/2);
+							ImgOut[k*nW+l] = ImgTmpR[ k*(nW/2) +l];
+						}
+					}					
+				}else{
+					for(int k=0; k<=0.5*nH; k++){
+						for(int l=0.5*nW;l<=nW; l++){
+							ImgOut[k*nW+l] = tabImage[1];
+						}
+					}				
+				}
+	
+			}else if( i==2){
+				int a =0;
+				int b = 0;
+				for(int k=0.5*nH; k<=nH; k++){
+					b = 0;
+					for(int l=0;l<=0.5*nW; l++){
+						ImgTmpS[a*(nW/2)+b] = img[k*nW+l];
+						b++;
+					}
+					a++;
+				}
+				
+				
+				if(tabVariance[i] > seuil){
+				
+					ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
+			
+					a = 0;
+					b = 0;
+					for(int k=0.5*nH; k<=nH; k++){
+						b =0;
+						for(int l=0;l<=0.5*nW; l++){
+							ImgOut[k*nW+l] = ImgTmpR[a*(nW/2)+b];
+							b++;
+						}
+						a++;
+					}				
+				}else{
+					for(int k=0.5*nH; k<=nH; k++){
+						for(int l=0;l<=0.5*nW; l++){
+							ImgOut[k*nW+l] = tabImage[2];
+							b++;
+						}
+					}				
+				}
+			}else {
+				int a =0;
+				int b = 0;
+				for(int k=0.5*nH; k<=nH; k++){
+					b =0;
+					for(int l=0.5*nW;l<=nW; l++){
+						ImgTmpS[a*(nW/2)+b] =  img[k*nW+l];
+						b++;
+					}
+					a++;
+				}
+				
+				
+				if(tabVariance[i] > seuil){
+					ImgTmpR = divisionRecurs(ImgTmpS,nH/2, nW/2);
+			
+					a = 0;
+					b = 0;
+					for(int k=nH/2; k<=nH; k++){
+						b =0;
+						for(int l=nW/2;l<=nW; l++){
+							ImgOut[k*nW+l] = ImgTmpR[a*(nW/2)+b];
+							b++;
+						}
+						a++;	
+					}				
+				}else{
+					for(int k=0.5*nH; k<=nH; k++){
+						b =0;
+						for(int l=0.5*nW;l<=nW; l++){
+							ImgOut[k*nW+l] = tabImage[3];
+						}
+					}				
+				}
+			}
+		}
+
+		return ImgOut;
+	}else{
+		for (int i=0; i <= nH; i++){
+			for (int j=0; j <= nW; j++){
+				if(i <= 0.5*nH && j<= 0.5*nW){
+					ImgOut[i*nW+j] = tabImage[0];
+				}else if(i <= 0.5*nH && j>= 0.5*nW){
+					ImgOut[i*nW+j] = tabImage[1];
+				}else if(i >= 0.5*nH && j<= 0.5*nW){
+					ImgOut[i*nW+j] = tabImage[2];
+				}else{
+					ImgOut[i*nW+j] = tabImage[3];
+				}
+			}
+		}
+	}
+	
+	
+	
+	return ImgOut;	
 }
+
 
 int* calculsImage(OCTET* img, int nH, int nW){
 
@@ -82,8 +248,8 @@ int* calculsImage(OCTET* img, int nH, int nW){
 	
 	int nTaille = nH * nW;
 
-	for (int i=0; i < nH; i++){
-		for (int j=0; j < nW; j++){
+	for (int i=0; i <= nH; i++){
+		for (int j=0; j <= nW; j++){
 			if(i < 0.5*nH && j< 0.5*nW){
 				tabMoy[0] = tabMoy[0] + img[i*nW+j];
 				tabVariance[0] = tabVariance[0] + pow(img[i*nW+j],2);
@@ -101,15 +267,53 @@ int* calculsImage(OCTET* img, int nH, int nW){
 	}
 	
 
-	
 	for(int i=0; i<4; i++){
 		tabMoy[i] = tabMoy[i] / (nTaille/4);
-		cout << "Moyenne R" << (i+1) << " : " << tabMoy[i] << endl;
-		cout << "Variance R" << (i+1) << " : " << (tabVariance[i]/ (nTaille/4)) - pow(tabMoy[i],2) << endl;
-		cout << endl;
 	}
 	
 	return tabMoy;
+
+}
+
+
+int* calculsVariance(OCTET* img, int nH, int nW){
+
+	int* tabMoy = new int[4];
+	int* tabVariance = new int[4];
+	
+	for(int i=0; i<4;i++){
+		tabVariance[i] = 0;
+	}
+	
+	int nTaille = nH * nW;
+
+	for (int i=0; i <= nH; i++){
+		for (int j=0; j <= nW; j++){
+			if(i < 0.5*nH && j< 0.5*nW){
+				tabMoy[0] = tabMoy[0] + img[i*nW+j];
+				tabVariance[0] = tabVariance[0] + pow(img[i*nW+j],2);
+			}else if(i < 0.5*nH && j> 0.5*nW){
+				tabMoy[1] = tabMoy[1] + img[i*nW+j];
+				tabVariance[1] = tabVariance[1] + pow(img[i*nW+j],2);
+			}else if(i > 0.5*nH && j< 0.5*nW){
+				tabMoy[2] = tabMoy[2] + img[i*nW+j];
+				tabVariance[2] = tabVariance[2] + pow(img[i*nW+j],2);
+			}else{
+				tabMoy[3] = tabMoy[3] + img[i*nW+j];
+				tabVariance[3] = tabVariance[3] + pow(img[i*nW+j],2);
+			}
+		}
+	}
+	
+
+	for(int i=0; i<4; i++){
+		tabMoy[i] = tabMoy[i] / (nTaille/4);
+		tabVariance[i] = (tabVariance[i]/ (nTaille/4)) - pow(tabMoy[i],2);
+		cout << "Variance R" << nTaille << " : " << tabVariance[i] << endl;
+		cout <<endl;
+	}
+	
+	return tabVariance;
 
 }
 
@@ -126,7 +330,26 @@ int main(int argc, char* argv[]){
      
 	//couleurToGris(cNomImgLue, cNomImgEcrite);
 	
-	division(cNomImgLue);
+	//division(cNomImgLue);
+	
+	
+	OCTET *ImgIn, *ImgOut;
+		
+	lire_nb_lignes_colonnes_image_pgm(cNomImgLue, &nH, &nW);
+	nTaille = nH * nW;
+	
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	lire_image_pgm(cNomImgLue, ImgIn, nH * nW);
+		
+	allocation_tableau(ImgOut, OCTET,  nTaille);
+	
+	ImgOut = divisionRecurs(ImgIn,nH,nW);
+	
+	ecrire_image_pgm(cNomImgEcrite, ImgOut, nH, nW);
+	
+	free(ImgIn);
+	free(ImgOut);
+	
 
 	return 1;
 }
