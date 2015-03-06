@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int const n=20;
+int const n=50;
 const int absMin = 50;
 const int absMax = 550;
 const int ordMin = 150;
