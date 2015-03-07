@@ -47,6 +47,17 @@ GLvoid window_display();
 GLvoid window_reshape(GLsizei width, GLsizei height); 
 GLvoid window_key(unsigned char key, int x, int y);
 
+
+static float px = 0.0F;
+static float py = 0.0F;
+static float pz = 0.0F;
+static float angle = 0.0F;
+static int mx;
+static int my;
+static int meridien = 8;
+static int parallele = 8;
+
+
 int main(int argc, char **argv){
   
   // initialisation  des paramètres de GLUT en fonction
@@ -96,11 +107,19 @@ GLvoid window_display(){
 
   glClear(GL_COLOR_BUFFER_BIT);
   glLoadIdentity();
+  
+  glPushMatrix();
+  gluLookAt(px,py,pz,
+            px+sin(angle),py,pz+cos(angle),
+            0.0,1.0,0.0);
+  /* Affichage de la scene                      */
+  render_scene();
+  glPopMatrix();
 
   // C'est l'endroit où l'on peut dessiner. On peut aussi faire appel
   // à une fonction (render_scene() ici) qui contient les informations 
   // que l'on veut dessiner
-  render_scene();
+  //render_scene();
 
   // trace la scène grapnique qui vient juste d'être définie
   glFlush();
@@ -118,7 +137,7 @@ GLvoid window_reshape(GLsizei width, GLsizei height){
   // ici, vous verrez pendant le cours sur les projections qu'en modifiant les valeurs, il est
   // possible de changer la taille de l'objet dans la fenêtre. Augmentez ces valeurs si l'objet est 
   // de trop grosse taille par rapport à la fenêtre.
-  glOrtho(-15.0, 15.0, -15.0, 15.0, -5.0, 5.0);
+  glOrtho(-50.0, 50.0, -50.0, 50.0, -50.0, 50.0);
 
   // toutes les transformations suivantes sŽappliquent au modèle de vue 
   glMatrixMode(GL_MODELVIEW);
@@ -132,15 +151,57 @@ GLvoid window_key(unsigned char key, int x, int y){
     exit(1);                    
     break;
   
+  
+  case 43:
+  	meridien++;
+  	parallele++;
+  	glutPostRedisplay();
+  break;
+  
+  case 45:
+  	meridien--;
+  	parallele--;
+  	glutPostRedisplay();
+  break;  
+  
+  case 105:
+  	px -= 0.1F*sin(angle);
+	pz -= 0.1F*cos(angle);
+	glutPostRedisplay();
+  break;
+  
+  
+  case 107:
+  	px += 0.1F*sin(angle);
+	pz += 0.1F*cos(angle);
+	glutPostRedisplay();
+  break;
+   
   case 112:    
       glutFullScreen ( );
   break;
   
-  case 100:                   
+  case 100:  
+  	angle -= 0.03F;
+  	glutPostRedisplay();                
     break;
     
-  case 113: 
+  case 113:
+  	angle += 0.03F;
+  	glutPostRedisplay();   
     break;  
+    
+  case 115:
+	py -= 0.03F;
+	glutPostRedisplay();
+    break;
+  
+  case 122:
+	py += 0.03F;
+	glutPostRedisplay();
+    break;
+    
+   
      
   default:
     printf ("La touche %d n'est pas active.\n", key);
@@ -148,30 +209,134 @@ GLvoid window_key(unsigned char key, int x, int y){
   }     
 }
 
-void render_scene(){
 
-	double rayon = 10;
-	double hauteur = 20;
-	int nbMeridien = 10;
-	Point* tab = new Point[2*nbMeridien];
-	double rad;
+void afficheCylindre(int nbMeridien){
+
+	int rayon = 10;
+	int hauteur = 20;
+	double angle;
+	Point* tableau = new Point[2*nbMeridien];
 	
-	for(int i =0; i<nbMeridien; i++){
-		rad = 2*M_PI* (i /nbMeridien);
-		tab[2*i] = *(new Point(rayon * cos( rad * i ), rayon * sin(rad * i), -hauteur/2));
-		tab[2*i + 1] = *(new Point(rayon * cos( rad * i ), rayon * sin(rad * i), hauteur/2));	
+	for(int i=0; i<nbMeridien; i++){
+		
+		angle = 2*M_PI * i / nbMeridien;
+		
+		tableau[2*i] = Point(rayon*cos(angle),rayon*sin(angle), -hauteur/2);
+		tableau[2*i+1] = Point(rayon*cos(angle),rayon*sin(angle), hauteur/2);
+		
+		glColor3f(1, 0, 0);
+		glPointSize(5);
+		glBegin(GL_POINTS);
+			glVertex3f(rayon*cos(angle),rayon*sin(angle), -hauteur/2);
+			glVertex3f(rayon*cos(angle),rayon*sin(angle), hauteur/2);
+		glEnd();
+		
 	}
+	
+	for(int i=0; i<nbMeridien; i++){
+		glColor3f(0, 1, 0);
+		glBegin(GL_LINE_STRIP);
+			glVertex3f(tableau[(2*i)%(2*nbMeridien)].getX(),tableau[(2*i)%(2*nbMeridien)].getY(), tableau[(2*i)%(2*nbMeridien)].getZ());
+			glVertex3f(tableau[(2*i+2)%(2*nbMeridien)].getX(),tableau[(2*i+2)%(2*nbMeridien)].getY(),tableau[(2*i+2)%(2*nbMeridien)].getZ());			
+			glVertex3f(tableau[(2*i+3)%(2*nbMeridien)].getX(),tableau[(2*i+3)%(2*nbMeridien)].getY(),tableau[(2*i+3)%(2*nbMeridien)].getZ());
+			glVertex3f(tableau[(2*i+1)%(2*nbMeridien)].getX(),tableau[(2*i+1)%(2*nbMeridien)].getY(),tableau[(2*i+1)%(2*nbMeridien)].getZ());
+
+		glEnd();
+	}	
+}
+
+
+void afficheCone(int nbMeridien){
+
+	Point sommet(0,0,20);
+	int rayonBase = 15;
+	int hauteur = 20;
+	Point* tableau = new Point[nbMeridien];
 	
 	glColor3f(1, 0, 0);
-	glPointSize(5);
-	for(int i =0; i<nbMeridien; i++){
-		std::cout << tab[2*i].getX() << "," << tab[2*i].getY() << "," << tab[2*i].getZ() << endl;
+	glBegin(GL_POINTS);
+		glVertex3f(sommet.getX(),sommet.getY(),sommet.getZ());
+	glEnd();
+	
+	for(int i=0; i<nbMeridien; i++){
+		angle = 2*M_PI * i / nbMeridien;
+		tableau[i] = Point(rayonBase*cos(angle),rayonBase*sin(angle), -hauteur);
+		glColor3f(0, 1, 0);
+		glPointSize(5);
 		glBegin(GL_POINTS);
-			glVertex3f(tab[2*i].getX(),tab[2*i].getY(),tab[2*i].getZ());
-			glVertex3f(tab[2*i+1].getX(),tab[2*i].getY(),tab[2*i+1].getZ());			
+			glVertex3f(rayonBase*cos(angle),rayonBase*sin(angle), -hauteur);
 		glEnd();
 	}
+	
+	
+	for(int i=0; i<nbMeridien; i++){
+		glColor3f(0, 0, 1);
+		glBegin(GL_LINE_STRIP);
+			glVertex3f(sommet.getX(),sommet.getY(), sommet.getZ());
+			glVertex3f(tableau[i].getX(),tableau[i].getY(),tableau[i].getZ());			
+			glVertex3f(tableau[(i+1) % nbMeridien].getX(),tableau[(i+1) % nbMeridien].getY(),tableau[(i+1) % nbMeridien].getZ());
 
+		glEnd();
+	}	
+	
+}
+
+void afficheSphere(){
+
+	int rayon = 20;
+	Point centre(0,0,0);
+	double phi = 0;
+	double teta;
+	double nbPoint = 10;
+	
+
+	for(int i=0; i<meridien; i++){
+	
+		teta =  2*M_PI * i / meridien;
+		
+		for(int j =0; j<=10; j++){
+		
+			phi = (180/nbPoint)*j*(M_PI/180);
+		
+			glColor3f(0, 1, 0);
+			glPointSize(5);
+			glBegin(GL_POINTS);
+				glVertex3f(rayon*sin(phi)*cos(teta),rayon*sin(phi)*sin(teta), rayon*cos(phi));
+			glEnd();
+		
+		}
+	}
+	
+	
+	for(int i=0; i<=parallele; i++){
+	
+		phi =  M_PI * i / parallele;
+		
+		for(int j =0; j<=10; j++){
+		
+			teta = (360/nbPoint)*j*(M_PI/180);
+		
+			glColor3f(0, 0, 1);
+			glPointSize(5);
+			glBegin(GL_POINTS);
+				glVertex3f(rayon*sin(phi)*cos(teta),rayon*sin(phi)*sin(teta), rayon*cos(phi));
+			glEnd();
+		
+		}
+	}
+	
+	
+}
+
+
+void render_scene(){
+
+	
+	//afficheCylindre(1000);	
+	
+	//afficheCone(20);
+	
+	afficheSphere();
 }
 
 
