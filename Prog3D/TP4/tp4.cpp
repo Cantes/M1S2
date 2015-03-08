@@ -48,10 +48,10 @@ GLvoid window_reshape(GLsizei width, GLsizei height);
 GLvoid window_key(unsigned char key, int x, int y);
 
 
-static float px = 0.0F;
-static float py = 0.0F;
-static float pz = 0.0F;
-static float angle = 0.0F;
+static float px = 1.0F;
+static float py = 1.0F;
+static float pz = 1.0F;
+static float angle = M_PI;
 static int mx;
 static int my;
 static int meridien = 8;
@@ -152,32 +152,32 @@ GLvoid window_key(unsigned char key, int x, int y){
     break;
   
   
-  case 43:
+  case 43: // Touche '+'
   	meridien++;
   	parallele++;
   	glutPostRedisplay();
   break;
   
-  case 45:
+  case 45: // Touche '-'
   	meridien--;
   	parallele--;
   	glutPostRedisplay();
   break;  
   
-  case 105:
+  case 105: // Touche 'i'
   	px -= 0.1F*sin(angle);
 	pz -= 0.1F*cos(angle);
 	glutPostRedisplay();
   break;
   
   
-  case 107:
+  case 107: // Touche 'k'
   	px += 0.1F*sin(angle);
 	pz += 0.1F*cos(angle);
 	glutPostRedisplay();
   break;
    
-  case 112:    
+  case 112:   // Touche 'p' 
       glutFullScreen ( );
   break;
   
@@ -320,12 +320,72 @@ void afficheSphere(){
 			glPointSize(5);
 			glBegin(GL_POINTS);
 				glVertex3f(rayon*sin(phi)*cos(teta),rayon*sin(phi)*sin(teta), rayon*cos(phi));
-			glEnd();
-		
+			glEnd();	
 		}
 	}
+}
+
+void cylindre(int nbMeridien){
+
+	int rayon = 20;
+	int hauteur = 10;
+	double angle;
+	Vector vecteur(0,1,0);
+	Point origine(4,5,-3);
+	Point* tableau = new Point[2*nbMeridien];
+	
+	glColor3f(1, 1, 1);
+	glPointSize(5);
+	glBegin(GL_POINTS);
+		glVertex3f(0,0,0);
+		glVertex3f(4,5,0);
+	glEnd();
+	
+	for(int i=0; i<nbMeridien; i++){
+		
+		angle = 2*M_PI * i / nbMeridien;
+		
+		tableau[2*i] = Point(origine.getX()+rayon*cos(angle),origine.getY() + -hauteur/2, origine.getZ()+rayon*sin(angle));
+		tableau[2*i+1] = Point(origine.getX()+rayon*cos(angle),origine.getY()+ hauteur/2,origine.getZ()+rayon*sin(angle));
+		
+		glColor3f(1, 0, 0);
+		glPointSize(5);
+		glBegin(GL_POINTS);
+			glVertex3f(origine.getX()+rayon*cos(angle),origine.getY() + -hauteur/2, origine.getZ()+rayon*sin(angle));
+			glVertex3f(origine.getX()+rayon*cos(angle),origine.getY()+ hauteur/2,origine.getZ()+rayon*sin(angle));
+		glEnd();
+		
+	}
+/*
+
+		for(int i=0; i<nbMeridien; i++){
+		
+		angle = 2*M_PI * i / nbMeridien;
+		
+		tableau[2*i] = Point(rayon*cos(angle),rayon*sin(angle), -hauteur/2);
+		tableau[2*i+1] = Point(rayon*cos(angle),rayon*sin(angle), hauteur/2);
+		
+		glColor3f(0, 1, 0);
+		glPointSize(5);
+		glBegin(GL_POINTS);
+			glVertex3f(rayon*cos(angle),-hauteur/2,rayon*sin(angle));
+			glVertex3f(rayon*cos(angle),hauteur/2,rayon*sin(angle));
+		glEnd();
+		
+	}*/
 	
 	
+	for(int i=0; i<nbMeridien; i++){
+		glColor3f(0, 1, 0);
+		glBegin(GL_LINE_STRIP);
+			glVertex3f(tableau[(2*i)%(2*nbMeridien)].getX(),tableau[(2*i)%(2*nbMeridien)].getY(), tableau[(2*i)%(2*nbMeridien)].getZ());
+			glVertex3f(tableau[(2*i+2)%(2*nbMeridien)].getX(),tableau[(2*i+2)%(2*nbMeridien)].getY(),tableau[(2*i+2)%(2*nbMeridien)].getZ());			
+			glVertex3f(tableau[(2*i+3)%(2*nbMeridien)].getX(),tableau[(2*i+3)%(2*nbMeridien)].getY(),tableau[(2*i+3)%(2*nbMeridien)].getZ());
+			glVertex3f(tableau[(2*i+1)%(2*nbMeridien)].getX(),tableau[(2*i+1)%(2*nbMeridien)].getY(),tableau[(2*i+1)%(2*nbMeridien)].getZ());
+
+		glEnd();
+	}	
+
 }
 
 
@@ -336,7 +396,10 @@ void render_scene(){
 	
 	//afficheCone(20);
 	
-	afficheSphere();
+	//afficheSphere();
+	
+	cylindre(20);
+
 }
 
 
