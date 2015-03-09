@@ -98,7 +98,7 @@ void PointAuHasard(int n, point sommet[]){
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-//Renvoie Vrai si p2 est strictement a droite de la droite p_0p_1
+//Renvoie Vrai si p3 est strictement a droite de la droite p_1p_2
 bool AnglePolaireInferieur(point p1, point p2, point p3){
 	if( ((p3.abscisse-p1.abscisse)*(p2.ordonnee-p1.ordonnee) - (p3.ordonnee-p1.ordonnee)*(p2.abscisse-p1.abscisse)) > 0 ){
 		return true;
