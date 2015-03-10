@@ -234,21 +234,26 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
  	envconv[2] = T0.b;
  	envconv[3] = T0.c;
  	
-	for(int i=3;i<n;i++){
-	//int i = 3;
+	for(int i=2;i<4;i++){
+	//int i = 2;
 	
-		j = 1;
+		std::cout << tri[i+1] << std::endl << std::endl;
+		for(int k=0; k <indEC; k++){
+			std::cout << envconv[k] << std::endl;
+		}
+		std::cout << std::endl;
+	
+		j = i;
+		
+		std::cout << "j : " << j << std::endl;
 		
 		while(det(sommet[tri[i+1]],sommet[envconv[j]],sommet[tri[i+1]],sommet[envconv[j+1]] ) < 0){		
 			
+			std::cout << "d : " << envconv[j] << envconv[j+1] << tri[i+1] << std::endl;
 			triangle t;
 			t.a = envconv[j];
 			t.b = envconv[j+1];
-			t.c = tri[i+1];
-			
-			
-			std::cout << t.a << "," << t.b << "," << t.c << std::endl;
-			
+			t.c = tri[i+1];	
 			
 			T[ind] = t;
 			
@@ -264,14 +269,11 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 			
 			triangle t;
 			
-			std::cout << "j : " << envconv[j] << std::endl;
-			
+			std::cout << "g :" << envconv[j-1] << envconv[j-2] << tri[i+1] << std::endl;
 			
 			t.a = envconv[j-1];
 			t.b = envconv[j-2];
 			t.c = tri[i+1];
-			
-			//std::cout << t.a << "," << t.b << "," << t.c << std::endl;
 			
 			T[ind] = t;
 			
@@ -283,7 +285,7 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 		
 		Kgauche = j;
 	
-		std::cout << Kgauche << "," << Kdroite << std::endl;
+		//std::cout << Kgauche << "," << Kdroite << std::endl;
 		
 		for(int k =0; k < Kdroite-1; k++){
 			envconv[k] = tri[i+1];
@@ -293,13 +295,12 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 			envconv[k] = tri[i+1];
 		}
 		indEC++;
-		
+		std::cout << "indEC : " <<  indEC << std::endl;
 		for(int k=0; k <indEC; k++){
 			std::cout << envconv[k] << std::endl;
 		}
-		
-	
- }
+		std::cout << "------------" << std::endl;
+ 	}
 
 
   return nbre_triangle;
@@ -314,10 +315,13 @@ int main(){
   point sommet[n];
   int tri[n];
   triangle T[3*n];
-  for(int i=0;i<n+1;i++){tri[i]=i;}
+  for(int i=0;i<n;i++){tri[i]=i;}
   PointAuHasard(n,sommet);
   AffichagePoints(n,sommet);
   TriLexicographique(n,sommet,n,tri);
+  /*for(int i=0;i<n;i++){
+  	std::cout << tri[i] << std::endl;
+  }*/
   int t=TriangulIncrementale(n,sommet,tri,T);
   AffichageTriangulation(n,sommet,t,T);
   }
