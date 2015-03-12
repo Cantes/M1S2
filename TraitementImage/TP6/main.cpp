@@ -8,6 +8,7 @@
 int dimX = 0;
 int dimY = 0;
 int dimZ = 0;
+int tailleImage;
 unsigned short* image;
 
 void valeurs();
@@ -15,19 +16,18 @@ void valeurs();
 void lireImage(char* nomImg){
 
 	FILE* fichier;
-	FILE* sortie;
 	long tailleFichier;
   	size_t result;
 	fichier = fopen(nomImg, "rb");
-	sortie  = fopen("sortie.img", "wb");
 		
 	if(fichier){
  		fseek (fichier, 0 , SEEK_END);
   		tailleFichier = ftell (fichier);
   		rewind (fichier);
- 
-  		image = (unsigned short*) malloc (sizeof(unsigned short)*tailleFichier);		
   		
+  		tailleImage = sizeof(unsigned short)*tailleFichier;
+   		image = (unsigned short*) malloc (sizeof(unsigned short)*tailleFichier);		
+ 
   		if (image == NULL){
   			std::cerr << "Taille du buffer nulle" << std::endl;
   		}
@@ -43,32 +43,23 @@ void lireImage(char* nomImg){
 		std::cerr << "Impossible d'ouvrir le fichier" << std::endl;
 	}
 	
-	result = fwrite (image,1,tailleFichier,sortie);
-  		
-  	if (result != tailleFichier){
-  		std::cerr << "Erreur de lecture" << std::endl;
-  	}
-	
 	fclose(fichier);
-	fclose(sortie);
 }
 
 void valeurs(){
-
-	int min = 9999;
-	int max = 0;
 	
-	int taille = (dimX*dimY)/2;
-		
-	for(int z = 0; z<dimZ; z++){
-		for(int i =0; i<taille; i++){
-			if(image[i + (taille*z)] > max){
-				max = image[i + (taille*z)];
-			}
-			
-			if(image[i + (taille*z)] < min){
-				min = image[i + (taille*z)];
-			}
+	int min = 9999999;
+	int max = 0;
+	unsigned short save;
+  		
+	for(int i =0; i<tailleImage/2; i++){
+		save = (image[i]>>8) | (image[i]<<8);
+		if(save< min){
+			min = save ;
+		}
+  			
+		if(save > max){
+			max = save;
 		}
 	}
 		
@@ -77,21 +68,22 @@ void valeurs(){
 }
 
 int getValue(int i, int j, int k){
-	
-	return image[(i*j)/2 * k/2];
+	unsigned short save = (image[(i*j*k)/2]>>8) | (image[(i*j*k)/2]<<8);
+	return save;
 }
 
 int main(int argc, char* argv[]){
 
-	char fichier[] = "/auto_home/bcommandre/Bureau/M1_S2/TraitementImage/TP6/Image3D/BEAUFIX/beaufix.img";
+	char fichier[] = "/home/cantes/Bureau/M1S2/TraitementImage/TP6/Image3D/BEAUFIX/beaufix.img";
+	//char fichier[] = "/auto_home/bcommandre/Bureau/M1_S2/TraitementImage/TP6/Image3D/BEAUFIX/beaufix.img";
+	//char fichier[] = "/home/cantes/Bureau/M1S2/TraitementImage/TP6/Image3D/BRAINIX/brainix.256x256x100.0.9375x0.9375x1.5.img";
 	
 	sscanf (argv[1],"%d",&dimX);
 	sscanf (argv[2],"%d",&dimY);
 	sscanf (argv[2],"%d",&dimZ);
 	
-	lireImage(fichier); 
-	
-	//std::cout << getValue(32,51,0) << std::endl;
+	lireImage(fichier);	
+	std::cout << getValue(200,200,200) << std::endl;
 	valeurs();
 	
 	return 0;
