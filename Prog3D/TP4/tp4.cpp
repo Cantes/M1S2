@@ -82,6 +82,7 @@ int main(int argc, char **argv){
   glutReshapeFunc(&window_reshape);
   // la gestion des événements clavier
   glutKeyboardFunc(&window_key);
+  
 
   // la boucle prinicipale de gestion des événements utilisateur
   glutMainLoop();  
@@ -105,6 +106,7 @@ void init_scene(){
 
 GLvoid window_display(){
 
+	
   glClear(GL_COLOR_BUFFER_BIT);
   glLoadIdentity();
   
@@ -160,7 +162,13 @@ GLvoid window_key(unsigned char key, int x, int y){
   
   case 45: // Touche '-'
   	meridien--;
+  	if(meridien < 1){
+  		meridien = 1;
+  	}
   	parallele--;
+  	if(parallele < 1){
+  		parallele = 1;
+  	}
   	glutPostRedisplay();
   break;  
   
@@ -287,42 +295,102 @@ void afficheSphere(){
 	Point centre(0,0,0);
 	double phi = 0;
 	double teta;
-	double nbPoint = 10;
+	int nbPoint = 10;
+	int tailleM = nbPoint*meridien;
+	int tailleP = nbPoint*parallele;
 	
-
+	Point* tableauMeridien = new Point[tailleM];
+	Point* tableauParallele = new Point[tailleP];
+	
+	
+	glColor3f(1, 0, 0);
+	glPointSize(5);
+	glBegin(GL_POINTS);
+		glVertex3f(0,0,20);
+		glVertex3f(0,0,-20);
+	glEnd();
+	
+	glColor3f(0, 1, 0);
+	for(int i=3; i<meridien-2; i++){
+		for(int j=3; j<parallele-2; j++){
+			glBegin(GL_QUADS);
+					glVertex3f(rayon*sin(M_PI * i / parallele)*cos(2*M_PI * j / parallele),
+							rayon*sin(M_PI * i / meridien)*sin(2*M_PI * j / parallele), 
+							rayon*cos(M_PI * i / meridien));
+								
+					glVertex3f(rayon*sin(M_PI * i / meridien)*cos(2*M_PI * (j+1) / parallele),
+							rayon*sin(M_PI * i / meridien)*sin(2*M_PI * (j+1) / parallele), 
+							rayon*cos(M_PI * i / meridien));
+								
+								
+					glVertex3f(rayon*sin(M_PI * (i+1) / meridien)*cos(2*M_PI * (j+1) / parallele),
+							rayon*sin(M_PI * (i+1) / meridien)*sin(2*M_PI * (j+1) / parallele), 
+							rayon*cos(M_PI * (i+1) / meridien));
+							
+					glVertex3f(rayon*sin(M_PI * (i+1) / meridien)*cos(2*M_PI * j / parallele),
+							rayon*sin(M_PI * (i+1) / meridien)*sin(2*M_PI * j / parallele), 
+							rayon*cos(M_PI * (i+1) / meridien));
+			glEnd();
+		}
+	}
+	
+	
+	/*
+	
 	for(int i=0; i<meridien; i++){
 	
 		teta =  2*M_PI * i / meridien;
 		
-		for(int j =0; j<=10; j++){
+		for(int j =0; j<nbPoint; j++){
 		
-			phi = (180/nbPoint)*j*(M_PI/180);
-		
-			glColor3f(0, 1, 0);
-			glPointSize(5);
-			glBegin(GL_POINTS);
-				glVertex3f(rayon*sin(phi)*cos(teta),rayon*sin(phi)*sin(teta), rayon*cos(phi));
-			glEnd();
+			phi = (180/(nbPoint-1))*j*(M_PI/180);
+						
+			tableauMeridien[i*nbPoint+j] = Point(rayon*sin(phi)*cos(teta),rayon*sin(phi)*sin(teta), rayon*cos(phi)); 
 		
 		}
 	}
 	
 	
-	for(int i=0; i<=parallele; i++){
+	for(int i=0; i<parallele; i++){
 	
-		phi =  M_PI * i / parallele;
+		phi =  M_PI * (i+1) / parallele;
 		
-		for(int j =0; j<=10; j++){
+		for(int j =0; j<nbPoint; j++){
 		
-			teta = (360/nbPoint)*j*(M_PI/180);
-		
-			glColor3f(0, 0, 1);
-			glPointSize(5);
-			glBegin(GL_POINTS);
-				glVertex3f(rayon*sin(phi)*cos(teta),rayon*sin(phi)*sin(teta), rayon*cos(phi));
-			glEnd();	
+			teta = (360/nbPoint-1)*j*(M_PI/180);
+			
+			tableauParallele[(i*nbPoint)+j] = Point(rayon*sin(phi)*cos(teta),rayon*sin(phi)*sin(teta), rayon*cos(phi)); 
 		}
 	}
+	
+	
+	glColor3f(0, 1, 0);
+	glPointSize(5);
+	for(int i=0; i<meridien; i++){
+		glBegin(GL_LINE_STRIP);
+			for(int j=0; j<nbPoint; j++){
+				int ind = (i*nbPoint+j);
+				glVertex3f(tableauMeridien[ind].getX(),tableauMeridien[ind].getY(), tableauMeridien[ind].getZ());
+			}
+		glEnd();
+	}
+	
+	glColor3f(0, 0, 1);
+	glPointSize(5);
+	for(int i =0; i<parallele; i++){
+	
+		glBegin(GL_LINE_STRIP);
+			for(int j=0; j<=nbPoint; j++){
+				int ind = i*nbPoint+ (j % nbPoint);
+				glVertex3f(tableauParallele[ind].getX(),tableauParallele[ind].getY(), tableauParallele[ind].getZ());
+			}		
+		glEnd();
+	
+	}*/
+	
+
+		
+	
 }
 
 void cylindre(int nbMeridien){
@@ -356,23 +424,6 @@ void cylindre(int nbMeridien){
 		glEnd();
 		
 	}
-/*
-
-		for(int i=0; i<nbMeridien; i++){
-		
-		angle = 2*M_PI * i / nbMeridien;
-		
-		tableau[2*i] = Point(rayon*cos(angle),rayon*sin(angle), -hauteur/2);
-		tableau[2*i+1] = Point(rayon*cos(angle),rayon*sin(angle), hauteur/2);
-		
-		glColor3f(0, 1, 0);
-		glPointSize(5);
-		glBegin(GL_POINTS);
-			glVertex3f(rayon*cos(angle),-hauteur/2,rayon*sin(angle));
-			glVertex3f(rayon*cos(angle),hauteur/2,rayon*sin(angle));
-		glEnd();
-		
-	}*/
 	
 	
 	for(int i=0; i<nbMeridien; i++){
@@ -396,9 +447,9 @@ void render_scene(){
 	
 	//afficheCone(20);
 	
-	//afficheSphere();
+	afficheSphere();
 	
-	cylindre(20);
+	//cylindre(20);
 
 }
 
