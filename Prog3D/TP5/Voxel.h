@@ -6,11 +6,29 @@
 class Voxel{
 
 	private:
-		Point origine;
-		int   longueur;
+		Point 	centre;
+		double  rayon;
+		Point*	sommets;
 		
 	public:
-		Voxel(Point p, int l);
+		Voxel(Point p, double r);
+		void affiche();
+		double getRayon();
+		Point getSommet(int i);	
+		
+	
+		//face avant haut droit bas gauche
+		//Point p1, p2, p3, p4;
+		//face arriere
+		//Point p5, p6, p7, p8;
+		
+		/*
+		float size;
+		Voxel();
+		Voxel(Point center, float size);
+		Voxel(const Voxel& v);
+		void subdiviseVoxel(int nb, Point*);*/
+
 
 };
 

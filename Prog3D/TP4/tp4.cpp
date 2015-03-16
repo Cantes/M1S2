@@ -93,7 +93,11 @@ int main(int argc, char **argv){
 // initialisation du fond de la fenêtre graphique : noir opaque
 GLvoid initGL(){
 
-  glClearColor(RED, GREEN, BLUE, ALPHA);
+	glClearColor(RED, GREEN, BLUE, ALPHA);
+  
+//	glEnable(GL_DEPTH_TEST); 	
+  	glEnable(GL_LIGHTING); 
+  	glEnable(GL_LIGHT0);
      
 }
 
@@ -174,14 +178,15 @@ GLvoid window_key(unsigned char key, int x, int y){
   break;  
   
   case 105: // Touche 'i'
-  	px -= 0.1F*sin(angle);
+  	//px -= 0.1F*sin(angle);
+  	angle -= 0.03F;
 	pz -= 0.1F*cos(angle);
 	glutPostRedisplay();
   break;
   
   
   case 107: // Touche 'k'
-  	px += 0.1F*sin(angle);
+  	//px += 0.1F*sin(angle);
 	pz += 0.1F*cos(angle);
 	glutPostRedisplay();
   break;
@@ -242,24 +247,26 @@ void afficheCylindre(int nbMeridien){
 		
 	}
 	
+	glColor3f(0, 1, 0);
+	glBegin(GL_QUADS);
 	for(int i=0; i<=2*nbMeridien; i++){
-		glColor3f(0, 1, 0);
-		glBegin(GL_QUADS);
+		
 			glVertex3f(tableau[(2*i)%(2*nbMeridien)].getX(),tableau[(2*i)%(2*nbMeridien)].getY(), tableau[(2*i)%(2*nbMeridien)].getZ());
 			glVertex3f(tableau[(2*i+1)%(2*nbMeridien)].getX(),tableau[(2*i+1)%(2*nbMeridien)].getY(),tableau[(2*i+1)%(2*nbMeridien)].getZ());			
 			glVertex3f(tableau[(2*i+3)%(2*nbMeridien)].getX(),tableau[(2*i+3)%(2*nbMeridien)].getY(),tableau[(2*i+3)%(2*nbMeridien)].getZ());
 			glVertex3f(tableau[(2*i+2)%(2*nbMeridien)].getX(),tableau[(2*i+2)%(2*nbMeridien)].getY(),tableau[(2*i+2)%(2*nbMeridien)].getZ());
 
-		glEnd();
-	}	
+		
+	}
+	glEnd();	
 }
 
 
 void afficheCone(int nbMeridien){
 
 	Point sommet(0,0,20);
-	int rayonBase = 15;
-	int hauteur = 20;
+	int rayonBase = 10;
+	int hauteur = 15;
 	Point* tableau = new Point[nbMeridien];
 	
 	glColor3f(1, 0, 0);
@@ -277,17 +284,13 @@ void afficheCone(int nbMeridien){
 		glEnd();
 	}
 	
-	
-	for(int i=0; i<=nbMeridien; i++){
-		glColor3f(0, 0, 1);
-		glBegin(GL_QUADS);
-			glVertex3f(tableau[i].getX(),tableau[i].getY(),tableau[i].getZ());			
-			glVertex3f(tableau[(i+1) % nbMeridien].getX(),tableau[(i+1) % nbMeridien].getY(),tableau[(i+1) % nbMeridien].getZ());
-			glVertex3f(tableau[i+2].getX(),tableau[i+2].getY(),tableau[i+2].getZ());			
-			glVertex3f(tableau[(i+3) % nbMeridien].getX(),tableau[(i+3) % nbMeridien].getY(),tableau[(i+3) % nbMeridien].getZ());
-
-		glEnd();
-	}	
+	glColor3f(0, 0, 1);
+	glBegin(GL_TRIANGLE_FAN);
+		glVertex3f(sommet.getX(),sommet.getY(),sommet.getZ());
+	for(int i=0; i<=nbMeridien; i++){				
+		glVertex3f(tableau[i % nbMeridien].getX(),tableau[i % nbMeridien].getY(),tableau[i % nbMeridien].getZ());	
+	}
+	glEnd();	
 	
 }
 
@@ -407,11 +410,11 @@ void cylindre(int nbMeridien){
 void render_scene(){
 
 	
-	afficheCylindre(10);	
+	//afficheCylindre(10);	
 	
 	//afficheCone(20);
 	
-	//afficheSphere();
+	afficheSphere();
 	
 	//cylindre(20);
 
