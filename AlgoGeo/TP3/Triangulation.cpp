@@ -211,45 +211,40 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 	int j;
 	int Kdroite, Kgauche;
 	int ind = 0;
-	int indEC = 3;
-	int envconv[n+1];
+	int indEC = 4;
+	int* envconv = new int[n+1];
+	int indTmp = 1;
+	int* envconvTmp = new int[n+1];
 	int taille_envconv=3;
 	int nbre_triangle=0;  
 	
-	for(int i=0; i<n+1; i++){
-		envconv[i] = -1;
-	}
-
  	triangle T0;
- 	T0.a = tri[0]; 
- 	T0.b = tri[1];
- 	T0.c = tri[2];
+ 	T0.a = tri[0]; // 4
+ 	T0.b = tri[1]; // 9
+ 	T0.c = tri[2]; // 6
  	
  	T[ind] = T0;
  	nbre_triangle++;
  	ind++;
  	
- 	envconv[0] = T0.c;
- 	envconv[1] = T0.a;
- 	envconv[2] = T0.b;
- 	envconv[3] = T0.c;
+ 	envconv[0] = T0.c; // 6
+ 	envconv[1] = T0.b; // 9
+ 	envconv[2] = T0.a; // 4
+ 	envconv[3] = T0.c; // 6
  	
-	for(int i=2;i<4;i++){
+	for(int i=2;i<n-1;i++){
 	//int i = 2;
-	
-		std::cout << tri[i+1] << std::endl << std::endl;
-		for(int k=0; k <indEC; k++){
+		
+		j = 1;
+		
+		for(int k = 0; k<indEC; k++){
 			std::cout << envconv[k] << std::endl;
 		}
-		std::cout << std::endl;
-	
-		j = i;
-		
-		std::cout << "j : " << j << std::endl;
-		
+		std::cout << std::endl;	
+
+			
 		while(det(sommet[tri[i+1]],sommet[envconv[j]],sommet[tri[i+1]],sommet[envconv[j+1]] ) < 0){		
 			
-			std::cout << "d : " << envconv[j] << envconv[j+1] << tri[i+1] << std::endl;
 			triangle t;
 			t.a = envconv[j];
 			t.b = envconv[j+1];
@@ -260,17 +255,17 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 			nbre_triangle++;
 			ind++;
 			j++;
+			
+			std::cout << j << "," << j+1 << "," << i+1 << std::endl;
 		}
 		
 		Kdroite = j;
-		j = indEC + 1;
+		j = indEC;
 		
 		while(det(sommet[tri[i+1]],sommet[envconv[j]],sommet[tri[i+1]],sommet[envconv[j-1]]) > 0){
 			
 			triangle t;
-			
-			std::cout << "g :" << envconv[j-1] << envconv[j-2] << tri[i+1] << std::endl;
-			
+
 			t.a = envconv[j-1];
 			t.b = envconv[j-2];
 			t.c = tri[i+1];
@@ -284,22 +279,21 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 		}
 		
 		Kgauche = j;
-	
-		//std::cout << Kgauche << "," << Kdroite << std::endl;
 		
-		for(int k =0; k < Kdroite-1; k++){
-			envconv[k] = tri[i+1];
+		indTmp = 1;
+		
+		envconvTmp[0] = tri[i+1];
+		
+		for(int k = Kdroite; k < Kgauche; k++){
+			envconvTmp[indTmp] = envconv[k];
+			indTmp++;
 		}
 		
-		for(int k =Kgauche+1; k < indEC+1; k++){
-			envconv[k] = tri[i+1];
-		}
-		indEC++;
-		std::cout << "indEC : " <<  indEC << std::endl;
-		for(int k=0; k <indEC; k++){
-			std::cout << envconv[k] << std::endl;
-		}
-		std::cout << "------------" << std::endl;
+		envconvTmp[indTmp] = envconvTmp[0];
+		
+		indEC = indTmp + 1;
+		envconv = envconvTmp;
+		
  	}
 
 
@@ -319,9 +313,6 @@ int main(){
   PointAuHasard(n,sommet);
   AffichagePoints(n,sommet);
   TriLexicographique(n,sommet,n,tri);
-  /*for(int i=0;i<n;i++){
-  	std::cout << tri[i] << std::endl;
-  }*/
   int t=TriangulIncrementale(n,sommet,tri,T);
   AffichageTriangulation(n,sommet,t,T);
   }
