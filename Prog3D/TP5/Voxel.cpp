@@ -22,6 +22,10 @@ Voxel::Voxel(Point centre, double r)
 	sommets[7] = Point(centre.getX() - rayon, centre.getY() - rayon, centre.getZ() + rayon);
 }
 
+Point* Voxel::getAllSommet(){
+	return sommets;
+}
+
 Point Voxel::getSommet(int i){
 	return sommets[i];
 }

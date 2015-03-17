@@ -124,20 +124,19 @@ GLvoid window_display()
 
 //fonction qui sert à initialiser la position de ma caméra
 void GLinitPositionCamera(){
-glViewport(0, 0, width, height);
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  // ici, vous verrez pendant le cours sur les projections qu'en modifiant les valeurs, il est
-  // possible de changer la taille de l'objet dans la fenêtre. Augmentez ces valeurs si l'objet est
-  // de trop grosse taille par rapport à la fenêtre.
+	glViewport(0, 0, width, height);
 
-  glOrtho(minOrtho, maxOrtho, minOrtho, maxOrtho, minOrtho, maxOrtho);
-    gluLookAt(eyeX,eyeY,eyeZ,objX,objY,objZ,upX,upY,upZ);
-  // toutes les transformations suivantes s´appliquent au modèle de vue
-  glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
+  
+	glLoadIdentity();
+
+	glOrtho(minOrtho, maxOrtho, minOrtho, maxOrtho, minOrtho, maxOrtho);
+	
+	gluLookAt(eyeX,eyeY,eyeZ,objX,objY,objZ,upX,upY,upZ);
+	
+	glMatrixMode(GL_MODELVIEW);
 }
-// fonction de call-back pour le redimensionnement de la fenêtre
 
 GLvoid window_reshape(GLsizei width, GLsizei height)
 {

@@ -41,6 +41,7 @@ Si vous mettez glut dans le répertoire courant, on aura alors #include "glut.h"
 // Entêtes de fonctions
 void init_scene();
 void render_scene();
+void DrawCircle(float cx, float cy, float r, int num_segments); 
 GLvoid initGL();
 GLvoid window_display();
 GLvoid window_reshape(GLsizei width, GLsizei height); 
@@ -50,7 +51,7 @@ GLvoid window_key(unsigned char key, int x, int y);
 static float px = 1.0F;
 static float py = 1.0F;
 static float pz = 1.0F;
-static float angle = M_PI;
+static float angle = 0;
 
 int main(int argc, char **argv){
   
@@ -89,8 +90,9 @@ GLvoid initGL(){
 
 	glClearColor(RED, GREEN, BLUE, ALPHA);
   
-//	glEnable(GL_DEPTH_TEST); 	
-  	/*glEnable(GL_LIGHTING); 
+  	/*
+	glEnable(GL_DEPTH_TEST); 	
+  	glEnable(GL_LIGHTING); 
   	glEnable(GL_LIGHT0);*/
      
 }
@@ -253,60 +255,80 @@ void afficheVoxel(Voxel voxel){
   	glEnd();
 }
 
-bool appartientSphere(){
+bool voxelAppartientSphere(Voxel voxel, Point centreSphere, double rayonSphere){
 
-	return false;
+	for( int i = 0; i<8; i++ ){
+		if( distance(centreSphere, voxel.getSommet(i)) > rayonSphere ){
+			return false;
+		}
+	}
+	
+	return true;
 }
 
-void afficheVoxelSphere(Point centreSphere,double rayonSphere, Point centreVoxel, double rayonVoxel, double resolution){
+bool voxelHorsSphere(Voxel voxel, Point centreSphere, double rayonSphere){
+
+	for( int i = 0; i<8; i++ ){
+		if( distance(centreSphere, voxel.getSommet(i)) < rayonSphere ){
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+void voxelSphere(Point centreSphere,double rayonSphere, Point centreVoxel, double rayonVoxel, double resolution){
 	
 	Voxel v(centreVoxel, rayonVoxel);
 	
-	if( rayonVoxel > resolution){
-		for(int i=0; i<8; i++){
-			if( distance(centreSphere, v.getSommet(i)) > rayonSphere){
-				Point centreSubVoxel(v.getSommet(i).getX()-centreVoxel.getX(), v.getSommet(i).getY()-centreVoxel.getY(), v.getSommet(i).getY()-centreVoxel.getX());
-				afficheVoxelSphere(centreSphere, rayonSphere, centreSubVoxel, rayonVoxel/2, resolution);	
-			}else{
-				Point centreSubVoxel(v.getSommet(i).getX()-centreVoxel.getX(), v.getSommet(i).getY()-centreVoxel.getY(), v.getSommet(i).getY()-centreVoxel.getX());
+	if(voxelAppartientSphere(v, centreSphere, rayonSphere)){
+		afficheVoxel(v);
+	}else if( rayonVoxel > resolution && !voxelHorsSphere(v,centreSphere,rayonSphere)){
+		if(!voxelAppartientSphere(v, centreSphere, rayonSphere)){
+			for(int i=0; i<8; i++){
+			
+				Point centreSubVoxel(	(v.getSommet(i).getX()+centreVoxel.getX())/2, 
+							(v.getSommet(i).getY()+centreVoxel.getY())/2, 
+							(v.getSommet(i).getZ()+centreVoxel.getZ())/2
+						);
+							
 				Voxel voxel(centreSubVoxel, rayonVoxel/2);
-				afficheVoxel(voxel);
+					
+				if(voxelAppartientSphere(voxel, centreSphere, rayonSphere)){
+					afficheVoxel(voxel);
+				}else if (!voxelHorsSphere(voxel,centreSphere, rayonSphere)){
+					voxelSphere(centreSphere, rayonSphere, centreSubVoxel, rayonVoxel/2, resolution);
+				}						
 			}
-		}	
-	}else{
-		for(int i=0; i<8; i++){
-		
-			if( distance(centreSphere, v.getSommet(i)) <= rayonSphere){
-				Point centreSubVoxel( (v.getSommet(i).getX()-centreVoxel.getX())/2, (v.getSommet(i).getY()-centreVoxel.getY())/2, (v.getSommet(i).getY()-centreVoxel.getX())/2);
-				Voxel voxel(centreSubVoxel, rayonVoxel/2);
-				afficheVoxel(voxel);
-			}
-		}		
+		}else{
+			afficheVoxel(v);
+		}
 	}
 }
 
 void afficheSphereVolumique(Point centre, double rayon, double resolution){
 
+	DrawCircle(0,0,rayon,100);
+	
 	Voxel v(centre, rayon);
 	
-	if( v.getRayon() > resolution){
+	if( voxelAppartientSphere(v, centre, rayon)){
+		afficheVoxel(v);
+	}else if ( v.getRayon() > resolution){
+	
 		for(int i=0; i<8; i++){
 		
-			if( distance(centre, v.getSommet(i)) > rayon){
-				Point centreSubVoxel( (v.getSommet(i).getX()-centre.getX())/2, (v.getSommet(i).getY()-centre.getY())/2, (v.getSommet(i).getY()-centre.getX())/2);
-				afficheVoxelSphere(centre, rayon, centreSubVoxel, rayon/2, resolution);	
-			}else{
-				Point centreSubVoxel( (v.getSommet(i).getX()-centre.getX())/2, (v.getSommet(i).getY()-centre.getY())/2, (v.getSommet(i).getY()-centre.getX())/2);
-				Voxel voxel(centreSubVoxel, rayon/2);
+			Point centreSubVoxel( 	(v.getSommet(i).getX()+centre.getX())/2,
+						(v.getSommet(i).getY()+centre.getY())/2, 
+						(v.getSommet(i).getZ()+centre.getZ())/2
+					);		
+						
+			Voxel voxel(centreSubVoxel, rayon/2);
+			
+			if(voxelAppartientSphere(voxel, centre, rayon)){
 				afficheVoxel(voxel);
-			}
-		}
-	}else{
-		for(int i=0; i<8; i++){
-			if( distance(centre, v.getSommet(i)) < rayon){
-				Point centreSubVoxel( (v.getSommet(i).getX()-centre.getX())/2, (v.getSommet(i).getY()-centre.getY())/2, (v.getSommet(i).getY()-centre.getX())/2);
-				Voxel voxel(centreSubVoxel, rayon/2);
-				afficheVoxel(voxel);
+			}else if (!voxelHorsSphere(voxel,centre, rayon)){
+				voxelSphere(centre, rayon, centreSubVoxel, rayon/2, resolution);
 			}
 		}
 	}
@@ -343,21 +365,108 @@ void DrawCircle(float cx, float cy, float r, int num_segments)
 	glEnd();  
 }
 
-void render_scene(){
+//TODO
+bool voxelAppartientCylindre(){
 
-	
-	DrawCircle(0,0,30,100);
-	Point centre(0,0,0);
-	afficheSphereVolumique(centre,30,15);
+	return false;
+}
 
+//TODO
+bool voxelHorsCylindre(){
+
+	return false;
 }
 
 
+void voxelCylindre(Point origineAxe, Vector axeVecteur,double hauteur, double rayon, Point centreVoxel, double rayonVoxel double resolution){
 
+}
 
+void afficheCylindreVolumique(Point origineAxe, Vector axeVecteur,double hauteur, double rayon,double resolution){
 
+	Voxel v(origineAxe, max(rayon,hauteur));
+	
+	afficheVoxel(v);
+	
+	if( voxelAppartientCylindre()){
+		afficheVoxel(v);
+	}else if ( v.getRayon() > resolution){
+	
+		for(int i=0; i<8; i++){
+		
+			Point centreSubVoxel( 	(v.getSommet(i).getX()+origineAxe.getX())/2,
+						(v.getSommet(i).getY()+origineAxe.getY())/2, 
+						(v.getSommet(i).getZ()+origineAxe.getZ())/2
+					);		
+						
+			Voxel voxel(centreSubVoxel, rayon/2);
+			
+			if(voxelAppartientCylindre()){
+				afficheVoxel(voxel);
+			}else if (!voxelHorsCylindre()){
+				voxelCylindre(origineAxe, axeVecteur, hauteur, rayon, centreSubVoxel, rayon/2, resolution);
+			}
+		}
+	}
+}
 
+void render_scene(){
 
+	Point centre(0,0,0);
+	Vector vecteur(0,1,0);
+	
+	afficheSphereVolumique(centre,20,0.5);
+	
+	//afficheCylindreVolumique(centre,vecteur,20,10,2);
+
+}
+
+/*
+void cylindre(int nbMeridien){
+
+	int rayon = 20;
+	int hauteur = 10;
+	double angle;
+	Vector vecteur(0,1,0);
+	Point origine(4,5,-3);
+	Point* tableau = new Point[2*nbMeridien];
+	
+	glColor3f(1, 1, 1);
+	glPointSize(5);
+	glBegin(GL_POINTS);
+		glVertex3f(0,0,0);
+		glVertex3f(4,5,0);
+	glEnd();
+	
+	for(int i=0; i<nbMeridien; i++){
+		
+		angle = 2*M_PI * i / nbMeridien;
+		
+		tableau[2*i] = Point(origine.getX()+rayon*cos(angle),origine.getY() + -hauteur/2, origine.getZ()+rayon*sin(angle));
+		tableau[2*i+1] = Point(origine.getX()+rayon*cos(angle),origine.getY()+ hauteur/2,origine.getZ()+rayon*sin(angle));
+		
+		glColor3f(1, 0, 0);
+		glPointSize(5);
+		glBegin(GL_POINTS);
+			glVertex3f(origine.getX()+rayon*cos(angle),origine.getY() + -hauteur/2, origine.getZ()+rayon*sin(angle));
+			glVertex3f(origine.getX()+rayon*cos(angle),origine.getY()+ hauteur/2,origine.getZ()+rayon*sin(angle));
+		glEnd();
+		
+	}
+	
+	
+	for(int i=0; i<nbMeridien; i++){
+		glColor3f(0, 1, 0);
+		glBegin(GL_LINE_STRIP);
+			glVertex3f(tableau[(2*i)%(2*nbMeridien)].getX(),tableau[(2*i)%(2*nbMeridien)].getY(), tableau[(2*i)%(2*nbMeridien)].getZ());
+			glVertex3f(tableau[(2*i+2)%(2*nbMeridien)].getX(),tableau[(2*i+2)%(2*nbMeridien)].getY(),tableau[(2*i+2)%(2*nbMeridien)].getZ());			
+			glVertex3f(tableau[(2*i+3)%(2*nbMeridien)].getX(),tableau[(2*i+3)%(2*nbMeridien)].getY(),tableau[(2*i+3)%(2*nbMeridien)].getZ());
+			glVertex3f(tableau[(2*i+1)%(2*nbMeridien)].getX(),tableau[(2*i+1)%(2*nbMeridien)].getY(),tableau[(2*i+1)%(2*nbMeridien)].getZ());
+
+		glEnd();
+	}	
+
+}*/
 
 
 

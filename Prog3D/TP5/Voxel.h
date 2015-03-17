@@ -14,6 +14,7 @@ class Voxel{
 		Voxel(Point p, double r);
 		void affiche();
 		double getRayon();
+		Point* getAllSommet();
 		Point getSommet(int i);	
 		
 	
