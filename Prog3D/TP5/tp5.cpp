@@ -12,6 +12,7 @@
 #include <stdio.h>      
 #include <stdlib.h>     
 #include <math.h>
+#include <vector>
 
 #include "../TP1/Vector.h"
 #include "../TP1/Point.h"
@@ -277,43 +278,54 @@ bool voxelHorsSphere(Voxel voxel, Point centreSphere, double rayonSphere){
 	return true;
 }
 
-void voxelSphere(Point centreSphere,double rayonSphere, Point centreVoxel, double rayonVoxel, double resolution){
+std::vector<Voxel> voxelSphere(Point centreSphere,double rayonSphere, Point centreVoxel, double rayonVoxel, double resolution){
+	
+	std::vector<Voxel> listeVoxel;
 	
 	Voxel v(centreVoxel, rayonVoxel);
 	
 	if(voxelAppartientSphere(v, centreSphere, rayonSphere)){
-		afficheVoxel(v);
+		listeVoxel.push_back(v);
+		//afficheVoxel(v);
 	}else if( rayonVoxel > resolution && !voxelHorsSphere(v,centreSphere,rayonSphere)){
-		if(!voxelAppartientSphere(v, centreSphere, rayonSphere)){
-			for(int i=0; i<8; i++){
+		for(int i=0; i<8; i++){
 			
-				Point centreSubVoxel(	(v.getSommet(i).getX()+centreVoxel.getX())/2, 
-							(v.getSommet(i).getY()+centreVoxel.getY())/2, 
-							(v.getSommet(i).getZ()+centreVoxel.getZ())/2
-						);
+			Point centreSubVoxel(	(v.getSommet(i).getX()+centreVoxel.getX())/2, 
+						(v.getSommet(i).getY()+centreVoxel.getY())/2, 
+						(v.getSommet(i).getZ()+centreVoxel.getZ())/2
+					);
 							
-				Voxel voxel(centreSubVoxel, rayonVoxel/2);
+			Voxel voxel(centreSubVoxel, rayonVoxel/2);
 					
-				if(voxelAppartientSphere(voxel, centreSphere, rayonSphere)){
-					afficheVoxel(voxel);
-				}else if (!voxelHorsSphere(voxel,centreSphere, rayonSphere)){
-					voxelSphere(centreSphere, rayonSphere, centreSubVoxel, rayonVoxel/2, resolution);
-				}						
-			}
-		}else{
-			afficheVoxel(v);
+			if(voxelAppartientSphere(voxel, centreSphere, rayonSphere)){
+				listeVoxel.push_back(voxel);
+				//afficheVoxel(voxel);
+			}else if (!voxelHorsSphere(voxel,centreSphere, rayonSphere)){
+				std::vector<Voxel> listeTmp = voxelSphere(centreSphere, rayonSphere, centreSubVoxel, rayonVoxel/2, resolution);
+				//voxelSphere(centreSphere, rayonSphere, centreSubVoxel, rayonVoxel/2, resolution);
+					
+				for(Voxel vox : listeTmp){
+					listeVoxel.push_back(vox);
+				}
+			}						
 		}
 	}
+	
+	return  listeVoxel;
+	
 }
 
-void afficheSphereVolumique(Point centre, double rayon, double resolution){
+std::vector<Voxel> afficheSphereVolumique(Point centre, double rayon, double resolution){
 
 	DrawCircle(0,0,rayon,100);
+	
+	std::vector<Voxel> listeVoxel;
 	
 	Voxel v(centre, rayon);
 	
 	if( voxelAppartientSphere(v, centre, rayon)){
-		afficheVoxel(v);
+		listeVoxel.push_back(v);
+		//afficheVoxel(v);
 	}else if ( v.getRayon() > resolution){
 	
 		for(int i=0; i<8; i++){
@@ -326,12 +338,19 @@ void afficheSphereVolumique(Point centre, double rayon, double resolution){
 			Voxel voxel(centreSubVoxel, rayon/2);
 			
 			if(voxelAppartientSphere(voxel, centre, rayon)){
-				afficheVoxel(voxel);
+				listeVoxel.push_back(v);
+				//afficheVoxel(voxel);
 			}else if (!voxelHorsSphere(voxel,centre, rayon)){
-				voxelSphere(centre, rayon, centreSubVoxel, rayon/2, resolution);
+				std::vector<Voxel> listeTmp = voxelSphere(centre, rayon, centreSubVoxel, rayon/2, resolution);
+				
+				for(Voxel vox : listeTmp){
+					listeVoxel.push_back(vox);
+				}
 			}
 		}
 	}
+	
+	return listeVoxel;
 }
 
 void DrawCircle(float cx, float cy, float r, int num_segments) 
@@ -366,29 +385,90 @@ void DrawCircle(float cx, float cy, float r, int num_segments)
 }
 
 //TODO
-bool voxelAppartientCylindre(){
+bool voxelAppartientCylindre(Point origine, Vector vecteur,double rayon, Voxel v){
 
-	return false;
+	Point limite(origine.getX()+vecteur.getX(), origine.getY()+vecteur.getY(),origine.getZ()+vecteur.getZ());
+	int distancePointProjete;
+	int distanceOrigineProjete;
+
+	for( int i = 0; i<8; i++ ){
+		Point projete(v.getSommet(i).projectOnLine(origine,limite));
+		distancePointProjete = sqrt( pow(v.getSommet(i).getX()-projete.getX(),2)
+				           + pow(v.getSommet(i).getY()-projete.getY(),2) 
+				           + pow(v.getSommet(i).getZ()-projete.getZ(),2) 
+				   );
+
+		distanceOrigineProjete = sqrt( pow(origine.getX()-projete.getX(),2)
+				      	     + pow(origine.getY()-projete.getY(),2) 
+				             + pow(origine.getZ()-projete.getZ(),2) 
+				   );				   
+				   
+		if( distancePointProjete > rayon || projete.getY() < origine.getY() || projete.getY() > limite.getY()   ){
+			return false;
+		}
+
+	}
+	
+	return true;
 }
 
 //TODO
-bool voxelHorsCylindre(){
+bool voxelHorsCylindre(Point origine, Vector vecteur,double rayon, Voxel v){
 
-	return false;
+	Point limite(origine.getX()+vecteur.getX(), origine.getY()+vecteur.getY(),origine.getZ()+vecteur.getZ());
+	int distancePointProjete;
+
+	for( int i = 0; i<8; i++ ){
+		Point projete(v.getSommet(i).projectOnLine(origine,limite));
+		distancePointProjete = sqrt( pow(v.getSommet(i).getX()-projete.getX(),2)
+				           + pow(v.getSommet(i).getY()-projete.getY(),2) 
+				           + pow(v.getSommet(i).getZ()-projete.getZ(),2) 
+				   );			   
+	
+		if( distancePointProjete <= rayon && projete.getY() >= origine.getY() && projete.getY() <= limite.getY()   ){
+			return false;
+		}
+
+	}
+	
+	return true;
 }
 
 
-void voxelCylindre(Point origineAxe, Vector axeVecteur,double hauteur, double rayon, Point centreVoxel, double rayonVoxel double resolution){
+void voxelCylindre(Point origineAxe, Vector axeVecteur, double rayon, Point centreVoxel, double rayonVoxel, double resolution){
+
+	Voxel v(centreVoxel, rayonVoxel);
+	
+	if(voxelAppartientCylindre(origineAxe,axeVecteur, rayon,v)){
+		afficheVoxel(v);
+	}else if( rayonVoxel > resolution && !voxelHorsCylindre(origineAxe, axeVecteur,rayon,v)){
+
+		for(int i=0; i<8; i++){
+			
+			Point centreSubVoxel(	(v.getSommet(i).getX()+centreVoxel.getX())/2, 
+						(v.getSommet(i).getY()+centreVoxel.getY())/2, 
+						(v.getSommet(i).getZ()+centreVoxel.getZ())/2
+					);
+							
+			Voxel voxel(centreSubVoxel, rayonVoxel/2);
+			
+			if(voxelAppartientCylindre(origineAxe,axeVecteur, rayon,voxel)){
+				afficheVoxel(voxel);
+			}else if (!voxelHorsCylindre(origineAxe, axeVecteur,rayon,voxel)){
+				voxelCylindre(origineAxe, axeVecteur, rayon, centreSubVoxel, rayonVoxel/2, resolution);
+			}						
+		}
+	}
 
 }
 
-void afficheCylindreVolumique(Point origineAxe, Vector axeVecteur,double hauteur, double rayon,double resolution){
+void afficheCylindreVolumique(Point origineAxe, Vector axeVecteur, double rayon,double resolution){
 
-	Voxel v(origineAxe, max(rayon,hauteur));
-	
-	afficheVoxel(v);
-	
-	if( voxelAppartientCylindre()){
+	Point limite(origineAxe.getX()+axeVecteur.getX(), origineAxe.getY()+axeVecteur.getY(),origineAxe.getZ()+axeVecteur.getZ());
+	int distanceLimite = sqrt( pow(limite.getX()-origineAxe.getX(),2) + pow(limite.getY()-origineAxe.getY(),2) + pow(limite.getZ()-origineAxe.getZ(),2) );
+	Voxel v(origineAxe, distanceLimite);
+
+	if( voxelAppartientCylindre(origineAxe,axeVecteur, rayon,v)){
 		afficheVoxel(v);
 	}else if ( v.getRayon() > resolution){
 	
@@ -397,63 +477,41 @@ void afficheCylindreVolumique(Point origineAxe, Vector axeVecteur,double hauteur
 			Point centreSubVoxel( 	(v.getSommet(i).getX()+origineAxe.getX())/2,
 						(v.getSommet(i).getY()+origineAxe.getY())/2, 
 						(v.getSommet(i).getZ()+origineAxe.getZ())/2
-					);		
+					);				
 						
-			Voxel voxel(centreSubVoxel, rayon/2);
+			Voxel voxel(centreSubVoxel, distanceLimite/2);
 			
-			if(voxelAppartientCylindre()){
+			if(voxelAppartientCylindre(origineAxe,axeVecteur, rayon,voxel)){
 				afficheVoxel(voxel);
-			}else if (!voxelHorsCylindre()){
-				voxelCylindre(origineAxe, axeVecteur, hauteur, rayon, centreSubVoxel, rayon/2, resolution);
+			}else if (!voxelHorsCylindre(origineAxe,axeVecteur, rayon,voxel)){
+				voxelCylindre(origineAxe, axeVecteur, rayon, centreSubVoxel, distanceLimite/2, resolution);
 			}
 		}
 	}
 }
 
-void render_scene(){
-
-	Point centre(0,0,0);
-	Vector vecteur(0,1,0);
-	
-	afficheSphereVolumique(centre,20,0.5);
-	
-	//afficheCylindreVolumique(centre,vecteur,20,10,2);
-
-}
-
-/*
-void cylindre(int nbMeridien){
+void afficheCylindre(int nbMeridien){
 
 	int rayon = 20;
-	int hauteur = 10;
+	int hauteur = 30;
 	double angle;
-	Vector vecteur(0,1,0);
-	Point origine(4,5,-3);
 	Point* tableau = new Point[2*nbMeridien];
-	
-	glColor3f(1, 1, 1);
-	glPointSize(5);
-	glBegin(GL_POINTS);
-		glVertex3f(0,0,0);
-		glVertex3f(4,5,0);
-	glEnd();
 	
 	for(int i=0; i<nbMeridien; i++){
 		
 		angle = 2*M_PI * i / nbMeridien;
 		
-		tableau[2*i] = Point(origine.getX()+rayon*cos(angle),origine.getY() + -hauteur/2, origine.getZ()+rayon*sin(angle));
-		tableau[2*i+1] = Point(origine.getX()+rayon*cos(angle),origine.getY()+ hauteur/2,origine.getZ()+rayon*sin(angle));
+		tableau[2*i] = Point(rayon*cos(angle),0, rayon*sin(angle));
+		tableau[2*i+1] = Point(rayon*cos(angle),hauteur, rayon*sin(angle));
 		
 		glColor3f(1, 0, 0);
 		glPointSize(5);
 		glBegin(GL_POINTS);
-			glVertex3f(origine.getX()+rayon*cos(angle),origine.getY() + -hauteur/2, origine.getZ()+rayon*sin(angle));
-			glVertex3f(origine.getX()+rayon*cos(angle),origine.getY()+ hauteur/2,origine.getZ()+rayon*sin(angle));
+			glVertex3f(rayon*cos(angle),0, rayon*sin(angle));
+			glVertex3f(rayon*cos(angle),hauteur, rayon*sin(angle));
 		glEnd();
 		
 	}
-	
 	
 	for(int i=0; i<nbMeridien; i++){
 		glColor3f(0, 1, 0);
@@ -465,8 +523,35 @@ void cylindre(int nbMeridien){
 
 		glEnd();
 	}	
+	
+}
 
-}*/
+void afficheSphere(std::vector<Voxel> listeVoxel){
+
+	for(Voxel v : listeVoxel){
+		afficheVoxel(v);
+	}
+}
+
+void render_scene(){
+
+	Point centre(0,0,0);
+	Vector vecteur(0,30,0);
+	
+	std::vector<Voxel> test = afficheSphereVolumique(centre,20,0.5);
+	
+	afficheSphere(test);
+	
+	
+	//afficheSphereVolumique(centre,20,0.5);
+	
+	//afficheCylindre(10);
+	
+	//afficheCylindreVolumique(centre,vecteur,20,2);
+
+}
+
+
 
 
 
