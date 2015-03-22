@@ -34,6 +34,10 @@ double Voxel::getRayon(){
 	return rayon;
 }
 
+Point Voxel::getCentre(){
+	return centre;
+}
+
 /*
 void Voxel::subdiviseVoxel(int nb, Point* v)
 {
