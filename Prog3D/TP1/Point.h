@@ -12,24 +12,24 @@ using namespace std;
 class Point{
 
 	private :
-		double x;
-		double y;
-		double z;
+		long double x;
+		long double y;
+		long double z;
 	
 	public :
 		//Constructeurs, destructeur
 		Point(void);
-		Point(double x1, double y1, double z1);
+		Point(long double x1, long double y1, long double z1);
 		Point(const Point& p);
 		~Point(void);
 		
 		//Getteurs, Setteurs
-		double getX(void) const;
-		double getY(void) const;
-		double getZ(void) const;
-		void setX(double x1);
-		void setY(double y1);
-		void setZ(double z1);
+		long double getX(void) const;
+		long double getY(void) const;
+		long double getZ(void) const;
+		void setX(long double x1);
+		void setY(long double y1);
+		void setZ(long double z1);
 		
 		//Methodes
 		Point projectOnLine(Point point1Line, Point point2Line);

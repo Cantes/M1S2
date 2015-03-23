@@ -6,7 +6,7 @@ Point::Point(void){
 	z = 0;
 }
 
-Point::Point(double x1, double y1, double z1){
+Point::Point(long double x1, long double y1, long double z1){
 	x = x1;
 	y = y1;
 	z = z1;
@@ -22,27 +22,27 @@ Point::~Point(void){
 
 }
 
-double Point::getX(void) const{
+long double Point::getX(void) const{
 	return x;
 }
 
-double Point::getY(void) const{
+long double Point::getY(void) const{
 	return y;
 }
 
-double Point::getZ(void) const{
+long double Point::getZ(void) const{
 	return z;
 }
 
-void Point::setX(double x1){
+void Point::setX(long double x1){
 	x = x1;
 }
 
-void Point::setY(double y1){
+void Point::setY(long double y1){
 	y = y1;
 }
 
-void Point::setZ(double z1){
+void Point::setZ(long double z1){
 	z = z1;
 }	
 
@@ -52,9 +52,9 @@ Point Point::projectOnLine(Point point1Line, Point point2Line){
 }
 
 Point Point::projectOnLine(Vector vecteur, Point pLine){
-	double norme = vecteur.norme();
-	double scalaire;
-	double taille;
+	long double norme = vecteur.norme();
+	long double scalaire;
+	long double taille;
 	
 	Vector v( (this->getX()-pLine.getX()), this->getY()-pLine.getY(), this->getZ()-pLine.getZ());
 		

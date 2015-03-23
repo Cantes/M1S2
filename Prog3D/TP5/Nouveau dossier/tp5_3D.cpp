@@ -324,3 +324,73 @@ void drawSphereVolumic(Point centre, double rayon, double resolution){
 //        Voxel newVox(newCtr, coteVox/2);
     }
 }
+
+
+
+
+
+
+
+
+
+
+void lectureFichierOFF(char* nomFichier, std::vector<Point> &listePoint, std::vector<Triangle> &listeTriangle, std::vector<Arete> &listeArete){
+
+	int nbSommet = 0;
+	int nbTriangle = 0;
+	int nbArete = 0;
+	
+	ifstream fichier(nomFichier, ios::in);
+	 
+        if(fichier){
+        	string ligne;
+                getline(fichier, ligne);
+       
+       		fichier >> nbSommet >> nbTriangle >> nbArete;
+       		
+       		long double x;
+       		long double y;
+       		long double z;
+       		
+       		
+       		for(int i=0; i < nbSommet; i++){
+       			fichier >> x >> y >> z;
+       			Point p(x,y,z);
+       			listePoint.push_back(p);
+       		}
+       		
+       		int trash;
+       		
+		for(int i=0; i < nbTriangle; i++){
+       			fichier >> trash >> x >> y >> z;
+       			Triangle t(listePoint.at(x-1), listePoint.at(y-1),listePoint.at(z-1));
+       			listeTriangle.push_back(t);
+       		}
+       		       		
+                fichier.close();
+        }else{
+        	std::cerr << "Impossible d'ouvrir le fichier !" << std::endl;
+        }
+                
+	
+}
+
+
+void render_scene(){
+
+	char nomFichier [256] = "bunny.off";
+	std::vector<Point> listePoint;
+	std::vector<Triangle> listeTriangle;
+	std::vector<Arete> listeArete;
+	
+	lectureFichierOFF(nomFichier,listePoint,listeTriangle,listeArete);
+	
+	
+
+}
+
+
+
+
+
+

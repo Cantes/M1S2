@@ -661,19 +661,21 @@ void render_scene(){
 	double rayon = 20;
 	double resolution = 0.5;
 	
-	std::vector<Voxel> voxelSphere = sphereVolumique(centreSphere,20,0.5);
+	std::vector<Voxel> voxelSphere = sphereVolumique(centreSphere,rayon,1);
 	
 	//affichage(voxelSphere);
 	
-	std::vector<Voxel> voxelCylindre = cylindreVolumique(centreCylindre,vecteur,20,0.5);
+	std::vector<Voxel> voxelCylindre = cylindreVolumique(centreCylindre,vecteur,rayon,1);
+
 	
 	//soustractionSphereCylindre(centreSphere,rayon,centreCylindre,vecteur, rayon , resolution);
 	
-	//intersectionSphereCylindre(centreSphere,rayon,centreCylindre,vecteur, rayon , resolution);
+	intersectionSphereCylindre(centreSphere,rayon,centreCylindre,vecteur, rayon , resolution);
 	
 	//affichage(voxelCylindre);
 	
-	unionSphereCylindre(voxelSphere, voxelCylindre);
+	//unionSphereCylindre(voxelSphere, voxelCylindre);
+	
 
 
 }
