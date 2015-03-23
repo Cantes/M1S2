@@ -43,13 +43,6 @@ int det(point p0, point p1, point p2, point p3){
   return (p1.abscisse-p0.abscisse)*(p3.ordonnee-p2.ordonnee)-(p1.ordonnee-p0.ordonnee)*(p3.abscisse-p2.abscisse);
 }
 
-//Renvoie Vrai si p3 est strictement a droite de la droite p_1p_2
-int determinant(point p1, point p2, point p3){
-	return (p3.abscisse-p1.abscisse)*(p2.ordonnee-p1.ordonnee) - (p3.ordonnee-p1.ordonnee)*(p2.abscisse-p1.abscisse);
-}
-
-
-
 int ProduitScalaire(point p0, point p1, point p2, point p3){
 //Renvoie le produit scalaire de p0p1,p2p3
   return (p1.abscisse-p0.abscisse)*(p3.abscisse-p2.abscisse)+(p1.ordonnee-p0.ordonnee)*(p3.ordonnee-p2.ordonnee);
@@ -77,9 +70,9 @@ bool EstADroite(point A, point B, point C){
 void PointAuHasard(int n, point sommet[]){
   //Tire n points au hasard uniformement repartis dans un disque, leurs coordonnees sont
   //stockees dans sommet[]
- // int tps=time(NULL);
+  int tps=time(NULL);
   //cout << "graine :"<< tps <<endl;
- // srand(time(NULL));//1363192482);//tps);
+  srand(time(NULL));//1363192482);//tps);
   for(int i=0;i<n;i++){
     int r= rand()%250;
     int theta= rand() %360;
@@ -211,7 +204,7 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 	int j;
 	int Kdroite, Kgauche;
 	int ind = 0;
-	int indEC = 4;
+	int indEC = 3;
 	int* envconv = new int[n+1];
 	int indTmp = 1;
 	int* envconvTmp = new int[n+1];
@@ -233,16 +226,9 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
  	envconv[3] = T0.c; // 6
  	
 	for(int i=2;i<n-1;i++){
-	//int i = 2;
 		
-		j = 1;
-		
-		for(int k = 0; k<indEC; k++){
-			std::cout << envconv[k] << std::endl;
-		}
-		std::cout << std::endl;	
+		j = 0;
 
-			
 		while(det(sommet[tri[i+1]],sommet[envconv[j]],sommet[tri[i+1]],sommet[envconv[j+1]] ) < 0){		
 			
 			triangle t;
@@ -255,19 +241,18 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 			nbre_triangle++;
 			ind++;
 			j++;
-			
-			std::cout << j << "," << j+1 << "," << i+1 << std::endl;
 		}
 		
 		Kdroite = j;
+		
 		j = indEC;
 		
 		while(det(sommet[tri[i+1]],sommet[envconv[j]],sommet[tri[i+1]],sommet[envconv[j-1]]) > 0){
 			
 			triangle t;
 
-			t.a = envconv[j-1];
-			t.b = envconv[j-2];
+			t.a = envconv[j];
+			t.b = envconv[j-1];
 			t.c = tri[i+1];
 			
 			T[ind] = t;
@@ -280,20 +265,23 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 		
 		Kgauche = j;
 		
-		indTmp = 1;
+		indTmp = 0;
 		
-		envconvTmp[0] = tri[i+1];
+		envconvTmp[indTmp] = tri[i+1];
 		
-		for(int k = Kdroite; k < Kgauche; k++){
-			envconvTmp[indTmp] = envconv[k];
+		for(int k = Kdroite; k <= Kgauche; k++){
 			indTmp++;
+			envconvTmp[indTmp] = envconv[k];
 		}
 		
+		indTmp++;
 		envconvTmp[indTmp] = envconvTmp[0];
+
+		indEC = indTmp ;
 		
-		indEC = indTmp + 1;
-		envconv = envconvTmp;
-		
+		for(int k = 0; k<indEC+1; k++){
+			envconv[k] = envconvTmp[k];	
+		}		
  	}
 
 
