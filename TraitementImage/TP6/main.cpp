@@ -1,191 +1,125 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
+#include "image_ppm.h"
 
-int dimX = 0;
-int dimY = 0;
-int dimZ = 0;
-unsigned short* image;
 
-void valeurs();
+int calculMoyenne(OCTET* image, int position, int nW){
 
-void lireImage(char* nomImg){
-
-	FILE* fichier;
-	long tailleFichier;
-  	size_t result;
-	fichier = fopen(nomImg, "rb");
-		
-	if(fichier){
- 		fseek (fichier, 0 , SEEK_END);
-  		tailleFichier = ftell (fichier);
-  		rewind (fichier);
-  		
-   		image = (unsigned short*) malloc (sizeof(unsigned short)*tailleFichier);		
- 
-  		if (image == NULL){
-  			std::cerr << "Taille du buffer nulle" << std::endl;
-  		}
-
-  		result = fread (image,1,tailleFichier,fichier);
-  		
-  		if (result != tailleFichier){
-  			std::cerr << "Erreur de lecture" << std::endl;
-  		}
-  		
-	}else{
-		std::cerr << "Impossible d'ouvrir le fichier" << std::endl;
-	}
+	int result = 0;
+	int nb = 0;
 	
-	fclose(fichier);
+	for(int i = -1; i<2; i++){
+		for(int j =-1; j<2; j++){
+			if(image[(i + position)*nW+j] != 0){
+				result += image[(i + position)*nW+j];
+				nb++;
+			}
+		}
+	}	
+	
+	return result / nb;
+	
 }
 
-void valeurs(){
+void reconstructionParMoyenne(char* nomImageLue, char* nomImageSortie){
+
+	int nH, nW, nTaille;
+	OCTET *ImgIn, *ImgOut;
 	
-	int min = 9999999;
-	int max = 0;
-	unsigned short save;
-  		
-	for(int i =0; i<dimX*dimY*dimZ; i++){
-		save = (image[i]>>8) | (image[i]<<8);
-		if(save< min){
-			min = save ;
-		}
-  			
-		if(save > max){
-			max = save;
+	lire_nb_lignes_colonnes_image_pgm(nomImageLue, &nH, &nW);
+	nTaille = nH * nW;
+	
+	allocation_tableau(ImgIn, OCTET, nTaille);
+	lire_image_pgm(nomImageLue, ImgIn, nH * nW);
+		
+	allocation_tableau(ImgOut, OCTET,  nTaille);
+	
+	for (int i=0; i < nH; i++){
+		for (int j=0; j < nW; j++){
+		
+			if(ImgIn[i*nW+j] < 30){
+				ImgIn[i*nW+j] = 0;	
+			}
+			
+			if( ImgIn[i*nW+j] == 0){
+				ImgOut[i*nW+j] = calculMoyenne(ImgIn,i,nW);
+			}else{
+				ImgOut[i*nW+j] = ImgIn[i*nW+j];
+			}
 		}
 	}
-		
-	std::cout << "Valeur minimale : " << min << std::endl;
-	std::cout << "Valeur maximale : " << max << std::endl;
-}
-
-unsigned short getValue(int i, int j, int k){
-	unsigned short save = (image[i*j*k]>>8) | (image[i*j*k]<<8);
-	return save;
-}
-
-void volumeRendering(char* nomImg,char* nomSortie, int visuFlag){
-
-	FILE* fichier;
-	FILE* sortie;
-  	size_t result;
-  	long tailleFichier;
-  	unsigned short save;
-  	unsigned short* buffer;
-  	unsigned short* bufferSortie;
-  	
-	fichier = fopen(nomImg, "rb");
-	sortie = fopen(nomSortie, "wb");
-		
-	if(fichier){
- 		fseek (fichier, 0 , SEEK_END);
-  		tailleFichier = ftell (fichier);
-  		rewind (fichier);
-  		
-   		buffer = (unsigned short*) malloc (sizeof(unsigned short)*tailleFichier);		
- 		bufferSortie =  (unsigned short*) malloc (sizeof(unsigned short)*tailleFichier);	
- 		
-  		if (buffer == NULL){
-  			std::cerr << "Taille du buffer nulle" << std::endl;
-  		}
-
-  		result = fread (buffer,1,tailleFichier,fichier);
-  		
-  		if (result != tailleFichier){
-  			std::cerr << "Erreur de lecture" << std::endl;
-  		}			
-  		
-  		if (visuFlag == 1){
-  			int max = 0;
-  			for(int i = 0; i < dimX*dimY; i++){
-  				max = 0;
-  				for(int z = 0; z < dimZ; z++){
-  					save = (buffer[i + z*dimX*dimY]>>8) | (buffer[i + z*dimX*dimY]<<8);
-  					
-  					if (save > max ){
-  						max = save;
-  					}
-  				}
-  				save = (max>>8) | (max<<8);
-  				bufferSortie[i] = save;
-  			}
-  				
-  		}else if (visuFlag == 2){
-  		
-  		  	int moy = 0;
-  			for(int i = 0; i < dimX*dimY; i++){
-  				moy = 0;
-  				for(int z = 0; z < dimZ; z++){
-  					save = (buffer[i + z *dimX*dimY]>>8) | (buffer[i + z*dimX*dimY]<<8);
-  					moy = moy + save;
-  				}
-  				moy = moy / dimZ;
-  				save = (moy>>8) | (moy<<8);
-  				bufferSortie[i] = save;
-  			}
-  		
-  		}else if (visuFlag == 3){
-  			int min = 999999;
-  			for(int i = 0; i < dimX*dimY; i++){
-  				min = 999999;
-  				for(int z = 0; z < dimZ; z++){
-  					save = (buffer[i + z *dimX*dimY]>>8) | (buffer[i + z*dimX*dimY]<<8);
-  					if (save < min ){
-  						min = save;
-  					}
-  				}
-  				save = (min>>8) | (min<<8);
-  				bufferSortie[i] = save;
-  			}
-  		}
-		
-  		result = fwrite (bufferSortie,1,tailleFichier,sortie);
-  		
-  		if (result != tailleFichier){
-  			std::cerr << "Erreur d'écriture" << std::endl;
-  		}
-  		
-
-	}else{
-		std::cerr << "Impossible d'ouvrir le fichier" << std::endl;
-	}
 	
-	fclose(fichier);
-	fclose(sortie);
+	ecrire_image_pgm(nomImageSortie, ImgOut, nH, nW);
+	
+	free(ImgIn);
+	free(ImgOut);
+	
+}
+
+void reconstructionParDilatation(char* entre,char* sortie){
+
+	int nH, nW, nTaille;
+    	std::vector<int> listeValeur;
+	OCTET *ImgOut;
+	
+   	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
+	nTaille = nH * nW;
+  
+	allocation_tableau(ImgOut, OCTET, nTaille);
+	lire_image_pgm(entre, ImgOut, nH * nW);
+	bool fin = false;
+
+	while(!fin){
+		fin = true;
+		for (int i=0; i < nH; i++){
+			for (int j=0; j < nW; j++){
+
+				if(ImgOut[i*nW+j] == 0){
+		      			fin = false;
+					for(int k=-1; k<2; k++){
+						for(int l=-1; l<2; l++){
+							if(ImgOut[(i + k)*nW+(j+l)] > 0 ){
+								listeValeur.push_back(ImgOut[(i + k)*nW+(j+l)]);
+	  						}
+						}
+					}
+				
+					if(!listeValeur.empty()){
+						int max = 0;
+						for(int i=0; i<listeValeur.size(); i++){
+							if(listeValeur.at(i) > max){
+								max = listeValeur.at(i);
+							}
+						}
+						ImgOut[i*nW+j] = max;
+					 	listeValeur.clear();
+					}						
+				}
+				
+			}
+		}
+	}	
+	
+		
+	ecrire_image_pgm(sortie, ImgOut,  nH, nW); 
+	
+	free(ImgOut);
+
 }
 
 int main(int argc, char* argv[]){
 
-	//char fichier[] = "/home/cantes/Bureau/M1S2/TraitementImage/TP6/Image3D/BEAUFIX/beaufix.img";
-	char fichier[] = "/home/cantes/Bureau/M1S2/TraitementImage/TP6/Image3D/WHATISIT/what.img";
-	char sortie[] = "sortie.0.raw";
-	//char fichier[] = "/auto_home/bcommandre/Bureau/M1_S2/TraitementImage/TP6/Image3D/BEAUFIX/beaufix.img";
-	//char fichier[] = "/home/cantes/Bureau/M1S2/TraitementImage/TP6/Image3D/BRAINIX/brainix.256x256x100.0.9375x0.9375x1.5.img";
+	char* cNomImgLue = new char[256];
+	char* cNomImgEcrite = new char[256];
+	   
+	sscanf (argv[1],"%s",cNomImgLue) ;
+	sscanf (argv[2],"%s",cNomImgEcrite);
+
+	//reconstructionParMoyenne(cNomImgLue,cNomImgEcrite);
 	
-	sscanf (argv[1],"%d",&dimX);
-	sscanf (argv[2],"%d",&dimY);
-	sscanf (argv[3],"%d",&dimZ);
-	
-	/*
-	lireImage(fichier);	
-	std::cout << getValue(200,200,200) << std::endl;
-	valeurs();*/
-	
-	volumeRendering(fichier,sortie,2);
-	
-	return 0;
+	reconstructionParDilatation(cNomImgLue,cNomImgEcrite);
+
+	return 1;
 }
-
-
-
-
-
-
-
-
-
