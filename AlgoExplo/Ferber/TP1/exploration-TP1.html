@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>M1 GMIN20A-Explo et mouvement</TITLE>
+<style type="text/css">
+.centrer {
+	text-align: center;
+}
+.centre {
+	text-align: center;
+}
+</style>
+</HEAD>
+<BODY BGCOLOR="white">
+
+<CENTER>
+  <h1 align="center"><font size="5"><a href="http://www.info-ufr.univ-montp2.fr/Formations/LMD/Master/">Master
+        Informatique 1&egrave;re ann&eacute;e</a>:</font></h1>
+  <h1 align="center"><font size="6">Algorithmes d'exploration et de mouvement</font></h1>
+  <p align="center"><font size="4">Intervenant (mais non responsable du module): <a href="http://www.lirmm.fr/~ferber">Jacques
+    Ferber</a></font></p>
+  <h2 align="center">GMIN20A - Ann&eacute;e 2014-2015</h2>
+  <p align="center">Sujet de TD/TP1 </p>
+  <h1>TP 1 - Flocking et &eacute;vitement de collision</h1>
+<p>&nbsp;</p>
+  <table width="200" border="1">
+    <tr>
+      <td class="centrer"><img src="images/troupeau1.jpg" width="380" height="341"><img src="images/vol-oiseau.jpg" width="455" height="339"></td>
+    </tr>
+  </table>
+</CENTER>
+
+<p>On va chercher &agrave; d&eacute;velopper et comprendre comment on peut cr&eacute;er des algorithmes de formation de groupe et d'&eacute;vitement de collision. Le probl&egrave;me est celui d'avancer en formation, sans qu'il y ait un chef a priori. On rencontre dans la nature de nombreux exemples de cas o&ugrave; ces formations sont mises en place: trouveaux, bancs de poissons, vols d'oiseaux, etc...</p>
+<p>Pour cela on utilisera l'outil <a href="http://ccl.northwestern.edu/netlogo/">NetLogo</a> qui permet de facilement cr&eacute;er des simulations multi-agents. NetLogo a &eacute;t&eacute; vu dans le module <a href="../ProgAgent/index.html">programmation orient&eacute;e agent (FMIN207)</a> au premier semestre du M1.</p>
+<h2>1. Flocking</h2>
+<p>Aller chercher le mod&egrave;le Flocking dans la biblioth&egrave;que de NetLogo. Tester ses param&egrave;tres...</p>
+<h3>a) Flocking avec des types d'agents diff&eacute;rents</h3>
+<p>On consid&egrave;re maintenant qu'il existe des agents Vert et des agents Bleu. Les Verts ne peuvent cr&eacute;er des groupes qu'avec des Vert et les Bleus avec des Bleus. Voir comment des groupes diff&eacute;rents se forment.</p>
+<h3>b) Flocking vectoriel</h3>
+<p>Impl&eacute;menter l'algorithme de flocking vu en cours avec les trois forces: alignement, &eacute;vitement, centrage</p>
+<h3>b) Flocking en V</h3>
+<p>On va essayer maintenant de cr&eacute;er un syst&egrave;me de vol en V (comme pour les oiseaux migrateurs)</p>
+<p>Pour cela on va appliquer les r&egrave;gles suivantes:</p>
+<ul>
+  <li>R&egrave;gle 1: si un agent est trop loin des autres agents, il acc&eacute;l&egrave;re pour se rapprocher du plus proche. </li>
+  <li>R&egrave;gle 2: si un agent est suffisamment pr&egrave;s d'un autre, il va venir sur l'un de ses c&ocirc;t&eacute;s, pour que sa vue ne soit pas obstru&eacute;e </li>
+  <li>R&egrave;gle 3: Si un agent est trop proche d'un autre, il ralentit </li>
+  <li>R&egrave;gle 4: quand les trois autres conditions sont remplies, l'agent adapte sa vitesse et direction &agrave; ses voisins visibles</li>
+</ul>
+<p>Impl&eacute;mentez l'algorithme permettant le syst&egrave;me en V (on pourra partir de l'algorithme de base du flocking).</p>
+<p><em>Note</em>: On rappelle que la fonction <a href="http://ccl.northwestern.edu/netlogo/docs/">in-cone</a> de Netlogo retourne l'ensemble des toriues ou patches qui se trouvent dans un cone de perception. Tr&egrave;s pratique pour savoir si un agent se trouve dans un certain cone de perception.</p>
+<h2>2. Evitement de collisions statiques</h2>
+<p>On d&eacute;sire que ce groupe d'agents puisse &eacute;viter des obstacles. Pour r&eacute;aliser cela, on  utilisera le <a href="Flocking-obstacles-template.nlogo">fichier NetLogo de template</a> o&ugrave; il suffit d'impl&eacute;menter la procedure <code>avoid-obstacles</code></p>
+<h3>a) Fuite</h3>
+<p>En partant de la base du flocking standard (choisir plutot le mod&egrave;le vectoriel, mais pas le vol en V), impl&eacute;mentez un algorithme d'&eacute;vitement standard qui consiste &agrave; aller dans la direction oppos&eacute;e quand un agent rencontre un obstacle. On parle alors de fuite.</p>
+<h3><strong>b) Evitement proprement dit</strong></h3>
+<p>Quand un obstacle entre dans son rayon de perception l'agent cherche &agrave; &eacute;viter l'obstacle. Pour cela l'agent se d&eacute;tourne de sa direction initiale d'un angle inf&eacute;rieur &agrave; un angle max (<code>max-avoidance-turn</code>). On verra que dans ce cas, il est possible que les agents entrent en collision avec les obstacles. Dans ce cas, impl&eacute;mentez, lorsque la distance est vraiment trop courte (environ 2 &agrave; 3 unit&eacute;s), un comportement de fuite.</p>
+<h3>c) Contr&ocirc;le par vecteurs</h3>
+<p>On d&eacute;sire maintenant g&eacute;rer tout cela par une simple combinaison lin&eacute;raire de vecteurs: on impl&eacute;mente le vecteur <strong>D</strong> final, qui donne la direction vers laquelle l'agent doit aller, comme la combinaison :</p>
+<p class="centre"><strong>D</strong> = (1-a) <strong>F</strong> + a<strong>E</strong></p>
+<p>o&ugrave; <strong>F</strong> est le vecteur issu du flocking standard, et <strong>E </strong>est le vecteur d'&eacute;vitement (il peut s'agir d'une simple r&eacute;pulsion). Noter que tous ces vecteurs ont une valeur ou module de 1. Faire varier <strong>a</strong> en fonction de la distance de l'agent &agrave; l'obstacle (quand l'obstacle est bien en face de l'agent). Cela signifie que lorsque l'agent est pr&egrave;s de l'obstacle il cherche surtout &agrave; fuir (et &eacute;viter l'obstacle) alors que loin des obstacles il applique essentiellement son algorithme de flocking.</p>
+<h2>&nbsp;</h2>
+</BODY>
+</HTML>
+
+
+
+

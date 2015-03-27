@@ -1,0 +1,46 @@
+to setup
+  clear-all
+  
+  set-default-shape turtles "bird side"
+  
+  create-turtles 25[
+    set color blue
+    setxy random-xcor random-ycor
+    set size 1.5
+  ]
+  
+  create-turtles 25[
+    set color green
+    setxy random-xcor random-ycor
+    set size 1.5
+  ]
+  
+  reset-ticks
+end
+
+to agite 
+  rt random 50
+  lt random 50
+end
+
+to go-turtles
+  agite
+  suivre
+  fd 1
+end
+
+to suivre
+  Let r one-of other turtles in-radius 3 with [ color = [color] of myself]
+  ifelse  r != nobody [
+    set heading towards r
+    fd 1
+  ][
+     fd 1
+  ]
+end
+
+
+to go
+  ask turtles [go-turtles]
+  tick
+end
