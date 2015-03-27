@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "Point.h"
 
 void valeurs();
 
@@ -78,43 +79,75 @@ void maillageSurfacique(unsigned short* image, int dimX, int dimY, int dimZ, flo
 	
 	char* bufferSortie;
 
-	for(int z=0; z < dimZ-1; z++){
-		for(int x =0; x <dimX-1; x++){
-			for(int y =0; y<dimY-1; y++){
-			
-				if(getValue(image,(x*tailleVoxelX),(y*tailleVoxelY),(z*tailleVoxelZ)) > seuil){
-				
+	for(int z=1; z < dimZ-1; z++){
+		for(int x =1; x <dimX-1; x++){
+			for(int y =1; y<dimY-1; y++){
+				if(getValue(image,x,y,z) > seuil){
 					for(int i = -1 ; i <2; i=i+2){
-						if( getValue(image,(x+i)*tailleVoxelX,y*tailleVoxelY,z*tailleVoxelZ) < seuil){
+						if( getValue(image,(x+i),y,z) < seuil){
+					
+							Point centreVoxelX1 (x*tailleVoxelX, y*tailleVoxelY, z*tailleVoxelZ);
+							Point centreVoxelX2 ((x+i)*tailleVoxelX, y*tailleVoxelY, z*tailleVoxelZ);
+fprintf(fichierSortie, "outer loop \n");
+	
+fprintf(fichierSortie, "vertex %f %f %f \n",(centreVoxelX1.getX()+centreVoxelX2.getX())/2 ,centreVoxelX1.getY()-tailleVoxelY,centreVoxelX1.getZ()-tailleVoxelZ) ;
+fprintf(fichierSortie, "vertex %f %f %f \n",(centreVoxelX1.getX()+centreVoxelX2.getX())/2,centreVoxelX1.getY()+tailleVoxelY,centreVoxelX1.getZ()+tailleVoxelZ);
+fprintf(fichierSortie, "vertex %f %f %f \n",(centreVoxelX1.getX()+centreVoxelX2.getX())/2,centreVoxelX1.getY()+tailleVoxelY,centreVoxelX1.getZ()-tailleVoxelZ);
 							
-							if(i < 0){
-								fprintf(fichierSortie, "outer loop \n");
+fprintf(fichierSortie, "endloop \n \n");
+	
+fprintf(fichierSortie, "outer loop \n");
+	
+fprintf(fichierSortie, "vertex %f %f %f \n",(centreVoxelX1.getX()+centreVoxelX2.getX())/2 , centreVoxelX1.getY()-tailleVoxelY, centreVoxelX1.getZ()-tailleVoxelZ) ;
+fprintf(fichierSortie, "vertex %f %f %f \n",(centreVoxelX1.getX()+centreVoxelX2.getX())/2,centreVoxelX1.getY()-tailleVoxelY,centreVoxelX1.getZ()+tailleVoxelZ);
+fprintf(fichierSortie, "vertex %f %f %f \n",(centreVoxelX1.getX()+centreVoxelX2.getX())/2,centreVoxelX1.getY()+tailleVoxelY,centreVoxelX1.getZ()+tailleVoxelZ);
 							
-								fprintf(fichierSortie, "vertex %f %f %f \n",(x+i+tailleVoxelX/2)*tailleVoxelX,(y-tailleVoxelY/2)*tailleVoxelY,(z-tailleVoxelZ/2)*tailleVoxelZ);
-								fprintf(fichierSortie, "vertex %f %f %f \n",(x+itailleVoxelX/2)*tailleVoxelX,(y+tailleVoxelY/2)*tailleVoxelY,(z-tailleVoxelZ/2)*tailleVoxelZ);
-								fprintf(fichierSortie, "vertex %f %f %f \n",(x+i+tailleVoxelX/2)*tailleVoxelX,(y+tailleVoxelY/2)*tailleVoxelY,(z+tailleVoxelZ/2)*tailleVoxelZ);
-							
-								fprintf(fichierSortie, "endloop \n \n");
-							}else{
-								fprintf(fichierSortie, "outer loop \n");
-							
-								fprintf(fichierSortie, "vertex %f %f %f \n",(x+i-tailleVoxelX/2)*tailleVoxelX,(y-tailleVoxelY/2)*tailleVoxelY,(z-tailleVoxelZ/2)*tailleVoxelZ);
-								fprintf(fichierSortie, "vertex %f %f %f \n",(x+i-tailleVoxelX/2)*tailleVoxelX,(y+tailleVoxelY/2)*tailleVoxelY,(z-tailleVoxelZ/2)*tailleVoxelZ);
-								fprintf(fichierSortie, "vertex %f %f %f \n",(x+i-tailleVoxelX/2)*tailleVoxelX,(y+tailleVoxelY/2)*tailleVoxelY,(z+tailleVoxelZ/2)*tailleVoxelZ);
-							
-								fprintf(fichierSortie, "endloop \n \n");							
-
-							}
-
+fprintf(fichierSortie, "endloop \n \n");
 						}
 						
-						if( getValue(image,x*tailleVoxelX,(y+i)*tailleVoxelY,z*tailleVoxelZ) < seuil){
+						if( getValue(image,x,(y+i),z) < seuil){
 								
-								
+						
+							Point centreVoxelX1 (x*tailleVoxelX, y*tailleVoxelY, z*tailleVoxelZ);
+							Point centreVoxelX2 (x*tailleVoxelX, (y+i)*tailleVoxelY, z*tailleVoxelZ);
+fprintf(fichierSortie, "outer loop \n");
+	
+fprintf(fichierSortie, "vertex %f %f %f \n", centreVoxelX1.getY()-tailleVoxelX,(centreVoxelX1.getY()+centreVoxelX2.getY())/2,centreVoxelX1.getZ()-tailleVoxelZ) ;
+fprintf(fichierSortie, "vertex %f %f %f \n", centreVoxelX1.getX()+tailleVoxelX,(centreVoxelX1.getY()+centreVoxelX2.getY())/2,centreVoxelX1.getZ()+tailleVoxelZ);
+fprintf(fichierSortie, "vertex %f %f %f \n", centreVoxelX1.getY()+tailleVoxelX,(centreVoxelX1.getY()+centreVoxelX2.getY())/2,centreVoxelX1.getZ()-tailleVoxelZ);
+							
+fprintf(fichierSortie, "endloop \n \n");
+	
+fprintf(fichierSortie, "outer loop \n");
+	
+fprintf(fichierSortie, "vertex %f %f %f \n", centreVoxelX1.getY()-tailleVoxelX ,(centreVoxelX1.getY()+centreVoxelX2.getY())/2, centreVoxelX1.getZ()-tailleVoxelZ) ;
+fprintf(fichierSortie, "vertex %f %f %f \n", centreVoxelX1.getY()-tailleVoxelX,(centreVoxelX1.getY()+centreVoxelX2.getY())/2,centreVoxelX1.getZ()+tailleVoxelZ);
+fprintf(fichierSortie, "vertex %f %f %f \n", centreVoxelX1.getY()+tailleVoxelX,(centreVoxelX1.getY()+centreVoxelX2.getY())/2,centreVoxelX1.getZ()+tailleVoxelZ);
+							
+fprintf(fichierSortie, "endloop \n \n");		
 						}
 						
-						if( getValue(image,x*tailleVoxelX,y*tailleVoxelY,(z+i)*tailleVoxelZ) < seuil){
-								
+						if( getValue(image,x,y,(z+i)) < seuil){
+						
+						
+							Point centreVoxelX1 (x*tailleVoxelX, y*tailleVoxelY, z*tailleVoxelZ);
+							Point centreVoxelX2 (x*tailleVoxelX, y*tailleVoxelY, (z+i)*tailleVoxelZ);
+							
+fprintf(fichierSortie, "outer loop \n");
+	
+fprintf(fichierSortie, "vertex %f %f %f \n",centreVoxelX1.getX()-tailleVoxelX,centreVoxelX1.getY()-tailleVoxelY,(centreVoxelX1.getZ()+centreVoxelX2.getZ())/2) ;
+fprintf(fichierSortie, "vertex %f %f %f \n",centreVoxelX1.getX()+tailleVoxelX,centreVoxelX1.getY()+tailleVoxelY,(centreVoxelX1.getZ()+centreVoxelX2.getZ())/2);
+fprintf(fichierSortie, "vertex %f %f %f \n",centreVoxelX1.getX()-tailleVoxelX,centreVoxelX1.getY()+tailleVoxelY,(centreVoxelX1.getZ()+centreVoxelX2.getZ())/2);
+							
+fprintf(fichierSortie, "endloop \n \n");
+	
+fprintf(fichierSortie, "outer loop \n");
+	
+fprintf(fichierSortie, "vertex %f %f %f \n",centreVoxelX1.getX()-tailleVoxelX,centreVoxelX1.getY()-tailleVoxelY,(centreVoxelX1.getZ()+centreVoxelX2.getZ())/2) ;
+fprintf(fichierSortie, "vertex %f %f %f \n",centreVoxelX1.getX()+tailleVoxelX,centreVoxelX1.getY()+tailleVoxelY,(centreVoxelX1.getZ()+centreVoxelX2.getZ())/2);
+fprintf(fichierSortie, "vertex %f %f %f \n",centreVoxelX1.getX()+tailleVoxelX,centreVoxelX1.getY()-tailleVoxelY,(centreVoxelX1.getZ()+centreVoxelX2.getZ())/2);
+							
+fprintf(fichierSortie, "endloop \n \n");		
 								
 						}
 					}
@@ -130,7 +163,8 @@ void maillageSurfacique(unsigned short* image, int dimX, int dimY, int dimZ, flo
 
 int main(int argc, char* argv[]){
 
-	char fichier[] = "/auto_home/bcommandre/Bureau/M1_S2/TraitementImage/TP6/Image3D/engine/engine.img";
+	//char fichier[] = "/auto_home/bcommandre/Bureau/M1_S2/TraitementImage/TP6/Image3D/engine/engine.img";
+	 char fichier[] ="/home/cantes/Bureau/M1S2/TraitementImage/TP6/Image3D/engine/engine.img";
 	char nomSortie[] = "sortie.stl";
 	unsigned short* image;
 	int dimX, dimY, dimZ;
