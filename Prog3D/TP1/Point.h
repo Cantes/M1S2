@@ -36,6 +36,7 @@ class Point{
 		Point projectOnLine(Vector vecteur, Point pLine);
 		Point projectOnPlan(Point pointOnPlane, Vector normalOfPlane);
 		void affiche();
+		bool compare(Point p);
 		
 		 
 

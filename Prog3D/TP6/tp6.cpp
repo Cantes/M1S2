@@ -70,9 +70,9 @@ float Zmin = -10;
 float Zmax = 10;
 
 
-//char nomFichier [256] = "bunny.off";
+char nomFichier [256] = "bunny.off";
 //char nomFichier [256] = "triceratops.off";
-char nomFichier [256] = "buddha.off";
+//char nomFichier [256] = "buddha.off";
 
 
 int main(int argc, char **argv){

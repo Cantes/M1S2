@@ -70,3 +70,22 @@ Point Point::projectOnLine(Vector vecteur, Point pLine){
 void Point::affiche(){
 	cout << "(" << this->getX() << "," << this->getY() << "," << this->getZ() << ")" << endl;
 }
+
+
+bool Point::compare(Point p){
+
+	return ( ( this->getX() == p.getX() ) && ( this->getY() == p.getY() ) && ( this->getZ() == p.getZ() ) );
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
