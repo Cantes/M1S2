@@ -62,25 +62,29 @@ void reconstructionParDilatation(char* entre,char* sortie){
 
 	int nH, nW, nTaille;
     	std::vector<int> listeValeur;
-	OCTET *ImgOut;
+	OCTET *ImgIn, *ImgOut;
 	
    	lire_nb_lignes_colonnes_image_pgm(entre, &nH, &nW);
 	nTaille = nH * nW;
   
+  	//allocation_tableau(ImgIn, OCTET, nTaille);
+  	//lire_image_pgm(entre, ImgIn, nH * nW);
+  	
 	allocation_tableau(ImgOut, OCTET, nTaille);
 	lire_image_pgm(entre, ImgOut, nH * nW);
-	bool fin = false;
 
+	bool fin = false;
+	
 	while(!fin){
 		fin = true;
-		for (int i=0; i < nH; i++){
-			for (int j=0; j < nW; j++){
+		for (int i=1; i < nH-1; i++){
+			for (int j=1; j < nW-1; j++){
 
-				if(ImgOut[i*nW+j] == 0){
+				if(ImgOut[i*nW+j] < 15){
 		      			fin = false;
 					for(int k=-1; k<2; k++){
 						for(int l=-1; l<2; l++){
-							if(ImgOut[(i + k)*nW+(j+l)] > 0 ){
+							if(ImgOut[(i + k)*nW+(j+l)] > 15 ){
 								listeValeur.push_back(ImgOut[(i + k)*nW+(j+l)]);
 	  						}
 						}
@@ -93,18 +97,33 @@ void reconstructionParDilatation(char* entre,char* sortie){
 								max = listeValeur.at(i);
 							}
 						}
+						
 						ImgOut[i*nW+j] = max;
-					 	listeValeur.clear();
-					}						
-				}
+						
+						listeValeur.clear();
+
+					}/*else{
+						ImgOut[i*nW+j] = ImgOut[i*nW+j];
+					}*/						
+				}/*else{
+					ImgOut[i*nW+j] = ImgOut[i*nW+j];
+				}*/
 				
 			}
 		}
-	}	
+		/*
+		for (int i=0; i < nH; i++){
+			for (int j=0; j < nW; j++){
+				ImgIn[i*nW+j] = ImgOut[i*nW+j];
+			}
+		}*/
+			
+	}
 	
 		
 	ecrire_image_pgm(sortie, ImgOut,  nH, nW); 
 	
+	//free(ImgIn);
 	free(ImgOut);
 
 }
