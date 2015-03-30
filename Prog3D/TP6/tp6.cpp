@@ -1,16 +1,31 @@
-#include <stdio.h>      
-#include <stdlib.h>     
+///////////////////////////////////////////////////////////////////////////////
+// Imagina
+// ----------------------------------------------------------------------------
+// IN - Synthèse d'images - Modélisation géométrique
+// Auteur : Gilles Gesquière
+// ----------------------------------------------------------------------------
+// Base du TP 1
+// programme permettant de créer des formes de bases.
+// La forme représentée ici est un polygone blanc dessiné sur un fond rouge
+///////////////////////////////////////////////////////////////////////////////  
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <vector>
 #include <fstream>
 #include <iostream>
 #include <string>
- 
 #include "../TP1/Vector.h"
 #include "../TP1/Point.h"
 #include "Arete.h"
 #include "Triangle.h"
 
+
+/* Dans les salles de TP, vous avez généralement accès aux glut dans C:\Dev. Si ce n'est pas le cas, téléchargez les .h .lib ...
+Vous pouvez ensuite y faire référence en spécifiant le chemin dans visual. Vous utiliserez alors #include <glut.h>. 
+Si vous mettez glut dans le répertoire courant, on aura alors #include "glut.h" 
+*/
 
 #include <GL/glut.h>
 
@@ -22,175 +37,203 @@
 #define RED   0
 #define GREEN 0
 #define BLUE  0
-#define ALPHA 1
+#define ALPHA 0
 
 
 // Touche echap (Esc) permet de sortir du programme
 #define KEY_ESC 27
-//augmenter/diminuer le nombre de meridien/parallele
-#define KEY_PLUS 61
-#define KEY_MOINS 45
 
 
-//paremètres camera :
-double width = 480;
-double height = 480;
-double eyeX = 0;
-double eyeY = 0;
-double eyeZ = 1;
-double objX = 0;
-double objY = 0;
-double objZ = 0;
-double upX = 0;
-double upY = 1;
-double upZ = 0;
-float vitesse = 1.0f;
-double angleRotateVert = 0;
-double angleRotateHor = 0;
-double minX = -50;
-double maxX = 50;
-double minY = -50;
-double maxY = 50;
-double minZ = -50;
-double maxZ = 50;
-int nbParallele = 8;
-int nbMeridien = 8;
 
 // Entêtes de fonctions
 void init_scene();
 void render_scene();
 GLvoid initGL();
 GLvoid window_display();
-GLvoid window_reshape(GLsizei width, GLsizei height);
-void GLinitPositionCamera();
+GLvoid window_reshape(GLsizei width, GLsizei height); 
 GLvoid window_key(unsigned char key, int x, int y);
+float* limiteEspace(std::vector<Point> listePoint);
+void lectureFichierOFF(char* nomFichier, std::vector<Point> &listePoint, std::vector<Triangle> &listeTriangle, std::vector<Arete> &listeArete);
+
+
+static float px = 0.0F;
+static float py = 0.0F;
+static float pz = 0.0F;
+static float angle = M_PI;
+
+
+float Xmin = -10;
+float Xmax = 10;
+float Ymin = -10;
+float Ymax = 10;
+float Zmin = -10;
+float Zmax = 10;
+
+
+//char nomFichier [256] = "bunny.off";
+//char nomFichier [256] = "triceratops.off";
+char nomFichier [256] = "buddha.off";
+
 
 int main(int argc, char **argv){
+  
+  // initialisation  des paramètres de GLUT en fonction
+  // des arguments sur la ligne de commande
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_RGBA);
 
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA);
-	glutInitWindowSize(WIDTH, HEIGHT);
-	glutInitWindowPosition(0, 0);
-	glutCreateWindow("TP6");
-	initGL();
-	init_scene();
-	glutDisplayFunc(&window_display);
-	glutReshapeFunc(&window_reshape);
-	glutKeyboardFunc(&window_key);
-	glutMainLoop();
+  // définition et création de la fenêtre graphique, ainsi que son titre
+  glutInitWindowSize(WIDTH, HEIGHT);
+  glutInitWindowPosition(0, 0);
+  glutCreateWindow("TP6");
 
-	return 1;
-	
+  // initialisation de OpenGL et de la scène
+  initGL();  
+  init_scene();
+
+  // choix des procédures de callback pour 
+  // le tracé graphique
+  glutDisplayFunc(&window_display);
+  
+  // le redimensionnement de la fenêtre
+  glutReshapeFunc(&window_reshape);
+  // la gestion des événements clavier
+  glutKeyboardFunc(&window_key);
+  
+
+  // la boucle prinicipale de gestion des événements utilisateur
+  glutMainLoop();  
+
+  return 1;
 }
 
 // initialisation du fond de la fenêtre graphique : noir opaque
 GLvoid initGL(){
 
 	glClearColor(RED, GREEN, BLUE, ALPHA);
-	
+ 
+     
 }
 
+// Initialisation de la scene. Peut servir à stocker des variables de votre programme
+// à initialiser
 void init_scene(){
 
 }
 
+// fonction de call-back pour l'affichage dans la fenêtre
 
 GLvoid window_display(){
 
-	glClear(GL_COLOR_BUFFER_BIT);
-	glLoadIdentity();
-	render_scene();
-	glFlush();
 	
+  glClear(GL_COLOR_BUFFER_BIT);
+  glLoadIdentity();
+  
+  glPushMatrix();
+  
+  gluLookAt(px,py,pz,
+            px+sin(angle),py,pz+cos(angle),
+            0.0,1.0,0.0);
+  /* Affichage de la scene                      */
+  render_scene();
+  glPopMatrix();
+
+  // C'est l'endroit où l'on peut dessiner. On peut aussi faire appel
+  // à une fonction (render_scene() ici) qui contient les informations 
+  // que l'on veut dessiner
+  //render_scene();
+
+  // trace la scène grapnique qui vient juste d'être définie
+  glFlush();
+  
 }
 
-void GLinitPositionCamera(){
-
-	glViewport(0, 0, width, height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(minX, maxX, minY, maxY, minZ, maxZ);
-	gluLookAt(eyeX,eyeY,eyeZ,objX,objY,objZ,upX,upY,upZ);
-	glMatrixMode(GL_MODELVIEW);
-	
-}
+// fonction de call-back pour le redimensionnement de la fenêtre
 
 GLvoid window_reshape(GLsizei width, GLsizei height){
-
-	glViewport(0, 0, width, height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(minX, maxX, minY, maxY, minZ, maxZ);
-	gluLookAt(0,9.0,5.0,0.0,0.0,0.0,0.0,1.0,1.0);
-	glMatrixMode(GL_MODELVIEW);
+  
+  glViewport(0, 0, width, height);
+  
+ 
+  std::vector<Point> listePoint;
+  std::vector<Triangle> listeTriangle;
+  std::vector<Arete> listeArete;
+  
+  lectureFichierOFF(nomFichier,listePoint,listeTriangle,listeArete);
 	
+  float* extrem = limiteEspace(listePoint);
+  
+  Xmin = extrem[0];
+  Xmax = extrem[1];
+  Ymin = extrem[2];
+  Ymax = extrem[3];
+  Zmin = extrem[4];
+  Zmax = extrem[5];
+  
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+   
+  // ici, vous verrez pendant le cours sur les projections qu'en modifiant les valeurs, il est
+  // possible de changer la taille de l'objet dans la fenêtre. Augmentez ces valeurs si l'objet est 
+  // de trop grosse taille par rapport à la fenêtre.
+  glOrtho(Xmin, Xmax, Ymin,Ymax, Zmin, Zmax);
+
+  // toutes les transformations suivantes sŽappliquent au modèle de vue 
+  glMatrixMode(GL_MODELVIEW);
 }
 
-GLvoid window_key(unsigned char key, int x, int y){
+// fonction de call-back pour la gestion des événements clavier
 
-	switch (key) {
+GLvoid window_key(unsigned char key, int x, int y){  
+  switch (key) {    
+  case KEY_ESC:  
+    exit(1);                    
+    break;
 
-		case KEY_ESC:
-			exit(1);
-		break;
-	   
-		case 122:	//Touche z
-			angleRotateVert += vitesse;
-			eyeY = eyeY * cos(angleRotateVert) - eyeZ * sin(angleRotateVert);
-			eyeZ = eyeY * sin(angleRotateVert) + eyeZ * cos(angleRotateVert);
-			GLinitPositionCamera();
-			glClear(GL_COLOR_BUFFER_BIT);
-			render_scene();
-			glFlush();
-		break;
-
-		case 115:	// Touche s 
-			angleRotateVert -= vitesse;
-			eyeY = eyeY * cos(angleRotateVert) - eyeZ * sin(angleRotateVert);
-			eyeZ = eyeY * sin(angleRotateVert) + eyeZ * cos(angleRotateVert);
-			GLinitPositionCamera();
-			glClear(GL_COLOR_BUFFER_BIT);
-			render_scene();
-			glFlush();
-		break;
-
-		case 100:	//Touche d
-			angleRotateHor += vitesse;
-			eyeX = eyeX * cos(angleRotateHor) + eyeZ * sin(angleRotateHor);
-			eyeZ = (- eyeX) * sin(angleRotateHor) + eyeZ * cos(angleRotateHor);
-			GLinitPositionCamera();
-			glClear(GL_COLOR_BUFFER_BIT);
-			render_scene();
-			glFlush();
-		break;
-	    
-		case 113:	//Touche q
-			angleRotateHor -= vitesse;
-			eyeX = eyeX * cos(angleRotateHor) + eyeZ * sin(angleRotateHor);
-			eyeZ = (- eyeX) * sin(angleRotateHor) + eyeZ * cos(angleRotateHor);
-			GLinitPositionCamera();
-			glClear(GL_COLOR_BUFFER_BIT);
-			render_scene();
-			glFlush();
-		break;
-	/*
-	case 105:	//Touche i
-		valOrtho--;
-		GLinitPositionCamera();
-		render_scene();
-	break;
-
-	case 107:	//Touche k
-		valOrtho++;
-		GLinitPositionCamera();
-		render_scene();
-	break;*/
-
-		default:
-			printf ("La touche %d n'est pas active.\n", key);
-		break;
-  	}
-  	
+  
+  case 105: // Touche 'i'
+  	//px -= 0.1F*sin(angle);
+	pz -= 0.1F*cos(angle);
+	glutPostRedisplay();
+  break;
+  
+  
+  case 107: // Touche 'k'
+  	//px += 0.1F*sin(angle);
+	pz += 0.1F*cos(angle);
+	glutPostRedisplay();
+  break;
+   
+  case 112:   // Touche 'p' 
+      glutFullScreen ( );
+  break;
+  
+  case 100:  
+  	angle -= 0.03F;
+  	glutPostRedisplay();                
+    break;
+    
+  case 113:
+  	angle += 0.03F;
+  	glutPostRedisplay();   
+    break;  
+    
+  case 115: // Touche s
+	py -= 0.03F;
+	glutPostRedisplay();
+    break;
+  
+  case 122: // Touche z
+	py += 0.03F;
+	glutPostRedisplay();
+    break;
+    
+   
+     
+  default:
+    printf ("La touche %d n'est pas active.\n", key);
+    break;
+  }     
 }
 
 void lectureFichierOFF(char* nomFichier, std::vector<Point> &listePoint, std::vector<Triangle> &listeTriangle, std::vector<Arete> &listeArete){
@@ -233,7 +276,8 @@ void lectureFichierOFF(char* nomFichier, std::vector<Point> &listePoint, std::ve
                 
 }
 
-long double* limiteEspace(std::vector<Point> listePoint){
+//long double* limiteEspace(std::vector<Point> listePoint){
+float* limiteEspace(std::vector<Point> listePoint){
 
 	// 0 : min X
 	// 1 : max X
@@ -242,7 +286,8 @@ long double* limiteEspace(std::vector<Point> listePoint){
 	// 4 : min Z
 	// 5 : max Z
 	
-	long double* extremite = new long double[6];
+	//long double* extremite = new long double[6];
+	float* extremite = new float[6];
 	
 	extremite[0] = 9999;
 	extremite[2] = 9999;
@@ -280,9 +325,10 @@ long double* limiteEspace(std::vector<Point> listePoint){
 
 	}
 	
+	/*
 	for(int i=0; i<6; i++){
 		extremite[i] = extremite[i] * 2;
-	}
+	}*/
 	
 	
 	return extremite;
@@ -292,8 +338,8 @@ long double* limiteEspace(std::vector<Point> listePoint){
 void affichage(std::vector<Triangle> listeTriangle){
 
 	for(Triangle t : listeTriangle){
-		glColor3f(1, 0, 0);
-		glBegin(GL_TRIANGLES);
+		glColor3f(1, 1, 1);
+		glBegin(GL_LINE_STRIP);
 			glVertex3f(t.getSommetA().getX(),t.getSommetA().getY(),t.getSommetA().getZ());
 			glVertex3f(t.getSommetB().getX(),t.getSommetB().getY(),t.getSommetB().getZ());
 			glVertex3f(t.getSommetC().getX(),t.getSommetC().getY(),t.getSommetC().getZ());
@@ -302,48 +348,60 @@ void affichage(std::vector<Triangle> listeTriangle){
 
 }
 
-void redim(long double* extremite){
-
-	minX = extremite[0];
-	maxX = extremite[1];
-	minY = extremite[2];
-	maxY = extremite[3];
-	minZ = extremite[4];
-	maxZ = extremite[5];
-		
-	GLinitPositionCamera();
-	glClear(GL_COLOR_BUFFER_BIT);
-	render_scene();
-	glFlush();
-	
-}
 
 void render_scene(){
 
-	char nomFichier [256] = "bunny.off";
+	
 	std::vector<Point> listePoint;
 	std::vector<Triangle> listeTriangle;
 	std::vector<Arete> listeArete;
-		
+
 	lectureFichierOFF(nomFichier,listePoint,listeTriangle,listeArete);
 	
-	long double* extrem = limiteEspace(listePoint);
-	
-	if(minX != extrem[0] ){
-		std::cout << minX << "," << extrem[0] << std::endl;
-		redim(extrem);
-	}
-	
-	glColor3f(1, 0, 0);
-	glPointSize(5);
-	glBegin(GL_POINTS);
-		glVertex3f(0,0,0);
-	glEnd();
-	
-
-
+	affichage(listeTriangle);
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
