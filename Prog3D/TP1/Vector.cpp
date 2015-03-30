@@ -1,7 +1,7 @@
 #include "Vector.h"
 #include <math.h>
 
-Vector::Vector(void){
+Vector::Vector(){
 	x = 0;
 	y = 0;
 	z = 0;
@@ -19,19 +19,19 @@ Vector::Vector(const Vector& v){
 	z = v.z;
 }
 
-Vector::~Vector(void){
+Vector::~Vector(){
 
 }
 
-double Vector::getX(void) const{
+double Vector::getX() const{
 	return x;
 }
 
-double Vector::getY(void) const{
+double Vector::getY() const{
 	return y;
 }
 
-double Vector::getZ(void) const{
+double Vector::getZ() const{
 	return z;
 }
 
@@ -47,7 +47,7 @@ void Vector::setZ(double z1){
 	z = z1;
 }	
 
-double Vector::norme(void){
+double Vector::norme(){
 	return sqrt((x * x) +(y *y)+(z*z));
 }
 
@@ -57,9 +57,9 @@ void Vector::affiche(){
 
 void Vector::normalize(){
 	double norme = this->norme();
-	x = x / norme;
-	y = y / norme;
-	z = z / norme;
+	this->setX( x / norme );
+	this->setY( y / norme );
+	this->setZ( z / norme );
 }
 
 double Vector::scalar(Vector vecteur2){
