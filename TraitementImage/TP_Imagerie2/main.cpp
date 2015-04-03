@@ -164,7 +164,7 @@ fprintf(fichierSortie, "endloop \n \n");
 int main(int argc, char* argv[]){
 
 	//char fichier[] = "/auto_home/bcommandre/Bureau/M1_S2/TraitementImage/TP6/Image3D/engine/engine.img";
-	 char fichier[] ="/home/cantes/Bureau/M1S2/TraitementImage/TP6/Image3D/engine/engine.img";
+	char fichier[] ="/home/cantes/Bureau/M1S2/TraitementImage/TP6/Image3D/engine/engine.img";
 	char nomSortie[] = "sortie.stl";
 	unsigned short* image;
 	int dimX, dimY, dimZ;

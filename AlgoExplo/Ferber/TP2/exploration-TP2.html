@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<HTML>
+<HEAD>
+   <TITLE>M1 GMIN20A-Explo et mouvement</TITLE>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+.centrer {
+	text-align: center;
+}
+.centre {
+	text-align: center;
+}
+</style>
+</HEAD>
+<BODY BGCOLOR="white">
+
+<CENTER>
+  <h1 align="center"><font size="5"><a href="http://www.info-ufr.univ-montp2.fr/Formations/LMD/Master/">Master
+        Informatique 1&egrave;re ann&eacute;e</a>:</font></h1>
+  <h1 align="center"><font size="6">Algorithmes d'exploration et de mouvement</font></h1>
+  <p align="center"><font size="4">Intervenant (mais non responsable du module): <a href="http://www.lirmm.fr/~ferber">Jacques
+    Ferber</a></font></p>
+  <h2 align="center">GMIN20A - Ann&eacute;e 2014-2015</h2>
+  <p align="center">&nbsp;</p>
+  <h1>TP2 - Navigation vectorielle</h1>
+<p>&nbsp;</p>
+</CENTER>
+<h2>1. Evitement de collisions dynamiques</h2>
+<p>On consid&egrave;re maintenant que chaque agent est un cercle d&eacute;finit par une taille fixe (le rayon du cercle).  On resuppose qu'il existe des agents Verts et des agents Bleus de mani&egrave;re &agrave; avoir des groupes de couleur diff&eacute;rente.</p>
+<p>Modifiez les algorithmes d'&eacute;vitement d'obstacles pour qu'ils prennent en compte l'&eacute;vitement des agents les uns vis &agrave; vis des autres, et notamment que les Bleus &eacute;vitent les Vert et r&eacute;ciproquement.</p>
+<h3><strong>a) Evitement d'agents</strong></h3>
+<p>Impl&eacute;mentez, &agrave; partir d'une souche 2.b ou 2.c du <a href="exploration-TP1.html">TP1</a> (&eacute;vitement proprement dit, avec priorit&eacute; ou contr&ocirc;le par vecteur), une technique anti-collision entre les agents.</p>
+<h3><strong>b) Algorithme d'&eacute;vitement fond&eacute; sur la notion de &quot;forces de glissement&quot;, de K. Zeghal</strong></h3>
+<p>Impl&eacute;mentez l'algorithme fonctionnant &agrave; partir des forces de glissement (on utilisera la technique vectorielle vue auparavant). Ici le vecteur <strong>E</strong> est d&eacute;fini comme &eacute;tant perpendiculaire au vecteur qui relie l'agent &agrave; l'obstacle. Le cot&eacute; du glissement est donn&eacute; par la diff&eacute;rence vectorielle (voir cours).</p>
+<h2>2. Cr&eacute;er un champ de potentiel fluide</h2>
+<p>On suppose maintenant qu'il existe un ensemble d'obstacles fixes et de buts fixes. On va essayer de cr&eacute;er dynamiquement un champ de potentiel consid&eacute;r&eacute; comme une vague.</p>
+<p>Chaque but propage des valeurs qui vont se diffuser dans l'environnement et simplement contourner les obstacles statiques. De même les obstacles vont propager des valeurs qui vont se diffuser dans l'environnemnt. Le champ obtenu est donc la somme de l'attraction et de l'&eacute;vitement.</p>
+<p>Impl&eacute;menter un tel algorithme, en utilisant le template propos&eacute;, et en faisant attention au probl&egrave;me de contournement des obstacles par les vagues.</p>
+<p>Tester votre algorithme en faisant circuler un ensemble d'agents sur ces champs de potentiel.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</BODY>
+</HTML>
+
+
+
+
