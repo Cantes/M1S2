@@ -9,10 +9,13 @@
 // La forme représentée ici est un polygone blanc dessiné sur un fond rouge
 ///////////////////////////////////////////////////////////////////////////////  
 
-#include <stdio.h>      
-#include <stdlib.h>     
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <vector>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 #include "../TP1/Vector.h"
 #include "../TP1/Point.h"
@@ -53,7 +56,7 @@ GLvoid window_key(unsigned char key, int x, int y);
 static float px = 1.0F;
 static float py = 1.0F;
 static float pz = 1.0F;
-static float angle = 0;
+static float angle = M_PI;
 
 static int meridien = 8;
 static int parallele = 8;
@@ -241,14 +244,32 @@ std::vector<Triangle> triangulationCylindre(int rayon, int hauteur){
 	
 	std::vector<Triangle> triangleCylindre;
 	for(int i=0; i<meridien; i++){
-		Triangle t1(tableau[(2*i)%(2*meridien)],tableau[(2*i+1)%(2*meridien)],tableau[(2*(i+1))%(2*meridien)]);
+		Triangle t1(tableau[(2*i)%(2*meridien)],tableau[(2*(i+1) + 1)%(2*meridien)],tableau[(2*i+1)%(2*meridien)]);
 		triangleCylindre.push_back(t1);
 		
-		
-		Triangle t2(tableau[(2*i+1)%(2*meridien)],tableau[(2*(i+1)+1)%(2*meridien)],tableau[(2*(i+1))%(2*meridien)]);
+		Triangle t2(tableau[(2*i)%(2*meridien)],tableau[(2*(i+1))%(2*meridien)],tableau[(2*(i+1)+1)%(2*meridien)]);
 		triangleCylindre.push_back(t2);
 		
 	}
+	
+	Point poleNord(0,0,hauteur/2 );
+	Point poleSud(0,0, -hauteur/2 );
+	
+	
+	for(int i=0; i<meridien; i++){
+		Triangle t1(tableau[(2*i+1)%(2*meridien)],poleNord,tableau[(2*(i+1) +1 )%(2*meridien)]);
+		triangleCylindre.push_back(t1);
+				
+	}
+	
+	for(int i=0; i<meridien; i++){
+		Triangle t1(tableau[(2*i)%(2*meridien)],poleSud,tableau[(2*(i+1))%(2*meridien)]);
+		triangleCylindre.push_back(t1);
+				
+	}
+	
+	
+
 	
 	return triangleCylindre;
 }
@@ -372,8 +393,6 @@ std::vector<Triangle> triangulationCube(int rayon){
 
 }
 
-
-
 void affichage(std::vector<Triangle> listeTriangle){
 
 	for(Triangle t : listeTriangle){
@@ -395,8 +414,9 @@ Vector produitVectoriel(Vector v1, Vector v2){
 
 Vector normaleFace(Triangle t){
 
-	return	produitVectoriel(Vector(t.getSommetB().getX()-t.getSommetA().getX(),t.getSommetB().getY()-t.getSommetA().getY(),t.getSommetB().getZ()-t.getSommetA().getZ()), 
-				 Vector(t.getSommetC().getX()-t.getSommetA().getX(),t.getSommetC().getY()-t.getSommetA().getY(),t.getSommetC().getZ()-t.getSommetA().getZ())
+	return	produitVectoriel(
+		Vector(t.getSommetB().getX()-t.getSommetA().getX(),t.getSommetB().getY()-t.getSommetA().getY(),t.getSommetB().getZ()-t.getSommetA().getZ()), 
+		Vector(t.getSommetC().getX()-t.getSommetA().getX(),t.getSommetC().getY()-t.getSommetA().getY(),t.getSommetC().getZ()-t.getSommetA().getZ())
 				);
 
 }
@@ -455,15 +475,41 @@ void affichageGauss(std::vector<Triangle> listeTriangle){
 
 double angleDiedre(Triangle t1, Triangle t2){
 
-	return ( Vector(t1.getSommetB().getX()-t1.getSommetA().getX(),t1.getSommetB().getY()-t1.getSommetA().getY(),t1.getSommetB().getZ()-t1.getSommetA().getZ()).angle(Vector(t1.getSommetC().getX()-t1.getSommetA().getX(),t1.getSommetC().getY()-t1.getSommetA().getY(),t1.getSommetC().getZ()-t1.getSommetA().getZ()))  +
-		Vector(t2.getSommetB().getX()-t2.getSommetA().getX(),t2.getSommetB().getY()-t2.getSommetA().getY(),t2.getSommetB().getZ()-t2.getSommetA().getZ()).angle(Vector(t2.getSommetC().getX()-t2.getSommetA().getX(),t2.getSommetC().getY()-t2.getSommetA().getY(),t2.getSommetC().getZ()-t2.getSommetA().getZ())) 
-	   );
+	Vector normaleFace1 = normaleFace(t1);
+	Vector normaleFace2 = normaleFace(t2);
+	
+	double cos = normaleFace1.scalar(normaleFace2);
+		
+	return ( 180*acos(cos)/M_PI);
 
+}
+
+void afficheNormale(std::vector<Triangle> listeTriangle){
+
+	for(Triangle t : listeTriangle){
+	
+		Vector normale = normaleFace(t);
+		
+		normale.normalize();
+		
+		normale.setX( normale.getX() *5 );
+		normale.setY( normale.getY() *5  );
+		normale.setZ( normale.getZ() *5  );
+
+		glColor3f(0, 1, 0);
+		glBegin(GL_LINE_STRIP);
+			glVertex3f(t.getSommetA().getX(),t.getSommetA().getY(),t.getSommetA().getZ());
+			glVertex3f(t.getSommetA().getX() + normale.getX(),t.getSommetA().getY() + normale.getY(),t.getSommetA().getZ() + normale.getZ());
+		glEnd();
+		
+	
+	}
 }
 
 Triangle adjacent(std::vector<Triangle> listeTriangle, Triangle triangle, Point A, Point B){
 
-	int nbSommetCommun = 0;
+	int nbSommetCommun;
+	
 	for(Triangle t : listeTriangle ){
 	
 		if(! t.compareTriangle(triangle)){
@@ -473,11 +519,12 @@ Triangle adjacent(std::vector<Triangle> listeTriangle, Triangle triangle, Point 
 			for(Point p : t.getSommets() ){
 			
 				if( p.compare(A) || p.compare(B) ){
+					
 					nbSommetCommun++;
 				}
 			}
 			
-			if(nbSommetCommun = 2){
+			if(nbSommetCommun == 2){
 			
 				return t;
 			}		
@@ -487,52 +534,15 @@ Triangle adjacent(std::vector<Triangle> listeTriangle, Triangle triangle, Point 
 
 void aretesVives ( std::vector<Triangle> listeTriangle, double angle){
 
-//	for(Triangle t : listeTriangle){
-
-		Triangle t = listeTriangle.at(0);
-		std::vector<Triangle> listeTest;
-		
-		listeTest.push_back(t);
-		
-		//affichage(listeTest);
+	for(Triangle t : listeTriangle){
 	
 		Triangle triangleAdjacent1 =  adjacent(listeTriangle, t, t.getSommetA(), t.getSommetB());
 		Triangle triangleAdjacent2 =  adjacent(listeTriangle, t, t.getSommetA(), t.getSommetC());
 		Triangle triangleAdjacent3 =  adjacent(listeTriangle, t, t.getSommetB(), t.getSommetC());
 		
+		//std::cout << angleDiedre(t,triangleAdjacent1 ) << "," << angleDiedre(t,triangleAdjacent2 ) << "," << angleDiedre(t,triangleAdjacent3 ) << std::endl;
 		
-		glPointSize(5);
-		glBegin(GL_POINTS);
-			glColor3f(1, 0, 0);
-			glVertex3f(t.getSommetA().getX(),t.getSommetA().getY(),t.getSommetA().getZ());
-			glColor3f(0, 1, 0);
-			glVertex3f(t.getSommetB().getX(),t.getSommetB().getY(),t.getSommetB().getZ());
-			glColor3f(0, 0, 1);
-			glVertex3f(t.getSommetC().getX(),t.getSommetC().getY(),t.getSommetC().getZ());
-		glEnd();
-		
-		/*
-		glPointSize(5);
-		glBegin(GL_POINTS);
-			glColor3f(1, 0, 0);
-			glVertex3f(triangleAdjacent3.getSommetA().getX(),triangleAdjacent3.getSommetA().getY(),triangleAdjacent3.getSommetA().getZ());
-			glColor3f(0, 1, 0);
-			glVertex3f(triangleAdjacent3.getSommetB().getX(),triangleAdjacent3.getSommetB().getY(),triangleAdjacent3.getSommetB().getZ());
-			glColor3f(0, 0, 1);
-			glVertex3f(triangleAdjacent3.getSommetC().getX(),triangleAdjacent3.getSommetC().getY(),triangleAdjacent3.getSommetC().getZ());
-		glEnd();*/
-		
-		listeTest.push_back(triangleAdjacent3);
-		
-		affichage(listeTest);
-		
-		//std::cout << angleDiedre(t,triangleAdjacent1 ) << std::endl;
-		/*std::cout << angleDiedre(t,triangleAdjacent2 ) << std::endl;
-		std::cout << angleDiedre(t,triangleAdjacent3 ) << std::endl;
-		std::cout << std::endl;*/
-		
-		/*
-		if( angleDiedre(t,triangleAdjacent1 ) > angle ){
+		if( angleDiedre(t,triangleAdjacent1 ) >= angle ){
 		
 			glColor3f(1, 0, 0);
 			glBegin(GL_LINE_STRIP);
@@ -547,8 +557,8 @@ void aretesVives ( std::vector<Triangle> listeTriangle, double angle){
 				glVertex3f(t.getSommetB().getX(),t.getSommetB().getY(),t.getSommetB().getZ());
 			glEnd();
 		}
-		/*
-		if( angleDiedre(t,triangleAdjacent2 ) > angle ){
+		
+		if( angleDiedre(t,triangleAdjacent2 ) >= angle ){
 		
 			glColor3f(1, 0, 0);
 			glBegin(GL_LINE_STRIP);
@@ -564,7 +574,7 @@ void aretesVives ( std::vector<Triangle> listeTriangle, double angle){
 			glEnd();
 		}
 		
-		if( angleDiedre(t,triangleAdjacent3 ) > angle ){
+		if( angleDiedre(t,triangleAdjacent3 ) >= angle ){
 		
 			glColor3f(1, 0, 0);
 			glBegin(GL_LINE_STRIP);
@@ -578,8 +588,8 @@ void aretesVives ( std::vector<Triangle> listeTriangle, double angle){
 				glVertex3f(t.getSommetB().getX(),t.getSommetB().getY(),t.getSommetB().getZ());
 				glVertex3f(t.getSommetC().getX(),t.getSommetC().getY(),t.getSommetC().getZ());
 			glEnd();
-		}*/	
-//	}
+		}	
+	}
 }
 
 void render_scene(){
@@ -589,15 +599,17 @@ void render_scene(){
 	Point centre(0,0,0);
 	std::vector<Triangle> listeTriangle;
 	
-	//listeTriangle = triangulationCylindre(rayon, hauteur);
+	listeTriangle = triangulationCylindre(rayon, hauteur);
 	//listeTriangle = triangulationSphere(centre, rayon);
-	listeTriangle = triangulationCube(rayon);
+	//listeTriangle = triangulationCube(rayon);
 	
 	//affichage(listeTriangle);
 	
 	//affichageGauss(listeTriangle);
 	
-	aretesVives(listeTriangle, 3);
+	//afficheNormale(listeTriangle);
+	
+	aretesVives(listeTriangle, 90);
 	
 
 }
