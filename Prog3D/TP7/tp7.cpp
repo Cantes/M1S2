@@ -532,6 +532,54 @@ Triangle adjacent(std::vector<Triangle> listeTriangle, Triangle triangle, Point 
 	}
 }
 
+int* voisinageTriangle(std::vector<Triangle> listeTriangle){
+
+	int* voisinage = new int[3*listeTriangle.size()];
+	
+	for(int i = 0; i<3*listeTriangle.size(); i++){
+		voisinage[i] = -1;
+	}
+	
+	int indice = 0;
+	
+	for(int i =0; i< listeTriangle.size(); i++){
+	
+		indice = 0;
+		for(int j =0; j< listeTriangle.size(); j++){
+		
+			if( !listeTriangle.at(i).compareTriangle(listeTriangle.at(j)) && voisin(listeTriangle.at(i), listeTriangle.at(j)) ){
+				voisinage[3*i + indice] = j;
+				indice++;
+			}
+		}
+	}
+	
+	return voisinage;
+
+}
+
+Point* areteCommune(Triangle t, Triangle tPrim){
+
+	Point* tab = new Point[2];
+	int ind = 0;
+	
+	for(Point p : t.getSommets()){
+	
+		for(Point pPrim : tPrim.getSommets()){
+		
+			if(p.compare(pPrim)){
+			
+				tab[ind] = p;
+				ind++;
+			}
+		}
+	}
+	
+	return tab;
+
+}
+
+
 void aretesVives ( std::vector<Triangle> listeTriangle, double angle){
 
 	for(Triangle t : listeTriangle){
@@ -591,6 +639,7 @@ void aretesVives ( std::vector<Triangle> listeTriangle, double angle){
 		}	
 	}
 }
+
 
 void render_scene(){
 
