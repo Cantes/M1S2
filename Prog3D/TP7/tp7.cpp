@@ -374,6 +374,7 @@ std::vector<Triangle> triangulationCube(int rayon){
 	listeTriangle.push_back(Triangle(p0,p1,p2));
 	listeTriangle.push_back(Triangle(p0,p2,p3));
 	
+	/*
 	listeTriangle.push_back(Triangle(p4,p5,p6));
 	listeTriangle.push_back(Triangle(p4,p6,p7));
 	
@@ -388,7 +389,7 @@ std::vector<Triangle> triangulationCube(int rayon){
 	
 	listeTriangle.push_back(Triangle(p0,p4,p7));
 	listeTriangle.push_back(Triangle(p0,p7,p3));
-
+*/
 
 	return listeTriangle;
 
@@ -482,7 +483,7 @@ double angleDiedre(Triangle t1, Triangle t2){
 	normaleFace2.normalize();
 	
 	double cos = normaleFace1.scalar(normaleFace2);
-			
+				
 	return ( 180*acos(cos)/M_PI);
 }
 
@@ -583,7 +584,7 @@ void aretesVives ( std::vector<Triangle> listeTriangle, double angle){
 		for(int j=0; j<3; j++){
 		
 			if(  voisinage[3*i + j] != -1  ){
-	
+				std::cout << angleDiedre(listeTriangle.at(i), listeTriangle.at(voisinage[3*i + j])) << std::endl;
 				if( angleDiedre(listeTriangle.at(i), listeTriangle.at(voisinage[3*i + j])) >= angle  ){
 					Point* tab = areteCommune(listeTriangle.at(i), listeTriangle.at(voisinage[3*i + j]));
 					listeAreteVives.push_back(tab[0]);
@@ -618,15 +619,15 @@ void render_scene(){
 	Point centre(0,0,0);
 	std::vector<Triangle> listeTriangle;
 	
-	listeTriangle = triangulationCylindre(rayon, hauteur);
+	//listeTriangle = triangulationCylindre(rayon, hauteur);
 	//listeTriangle = triangulationSphere(centre, rayon);
-	//listeTriangle = triangulationCube(rayon);
+	listeTriangle = triangulationCube(rayon);
 	
 	affichage(listeTriangle);
 	
 	//affichageGauss(listeTriangle);
 	
-	afficheNormale(listeTriangle);
+	//afficheNormale(listeTriangle);
 	
 	aretesVives(listeTriangle, 90);
 	

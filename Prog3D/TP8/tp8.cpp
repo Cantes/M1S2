@@ -64,6 +64,7 @@ static int parallele = 8;
 int nbRegion = 0;
 std::vector<Triangle>* listeRegion = new std::vector<Triangle>[256];
 std::vector<Triangle> listeTriangle;
+double tabCouleur [256][3]; 
 
 int main(int argc, char **argv){
   
@@ -555,9 +556,20 @@ std::vector<Triangle> regionTriangle(Triangle t, std::vector<Triangle> listeTria
 
 void segmentation(){
 
+	srand (time(NULL));
+	
 	while( !listeTriangle.empty()){
-	//for(int i=0; i<8; i++){
+
 		std::vector<Triangle> region = regionTriangle(listeTriangle.at(0),listeTriangle);
+		
+		double rouge = ((double)rand() / (double)(RAND_MAX));
+		double vert  = ((double)rand() / (double)(RAND_MAX));
+		double bleu  = ((double)rand() / (double)(RAND_MAX));
+		
+		
+		tabCouleur[nbRegion][0] = rouge;
+		tabCouleur[nbRegion][1] = vert;
+		tabCouleur[nbRegion][2] = bleu;
 		
 		listeRegion[nbRegion] = region;
 		nbRegion++;
@@ -575,20 +587,13 @@ void segmentation(){
 	}	
 }
 
-void afficheRegion(){
-
-	srand (time(NULL));
+void afficheRegion(){	
 	
 	for(int i=0; i<nbRegion; i++){
 	
-		double rouge = ((double)rand() / (double)(RAND_MAX));
-		double vert  = ((double)rand() / (double)(RAND_MAX));
-		double bleu  = ((double)rand() / (double)(RAND_MAX));
-	
 		for(Triangle t : listeRegion[i]){
 			
-			//glColor3f(1, 0, 0);
-			glColor3f(rouge,vert,bleu);						
+			glColor3f(tabCouleur[i][0],tabCouleur[i][1],tabCouleur[i][2]);						
 			glBegin(GL_TRIANGLES);
 				glVertex3f(t.getSommetA().getX(),t.getSommetA().getY(),t.getSommetA().getZ());
 				glVertex3f(t.getSommetB().getX(),t.getSommetB().getY(),t.getSommetB().getZ());
