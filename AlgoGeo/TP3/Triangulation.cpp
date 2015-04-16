@@ -212,23 +212,40 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 	int nbre_triangle=0;  
 	
  	triangle T0;
- 	T0.a = tri[0]; // 4
- 	T0.b = tri[1]; // 9
- 	T0.c = tri[2]; // 6
+ 	T0.a = tri[0];
+ 	T0.b = tri[1];
+ 	T0.c = tri[2]; 
  	
  	T[ind] = T0;
  	nbre_triangle++;
  	ind++;
+	
+ 	envconv[0] = T0.c;
  	
- 	envconv[0] = T0.c; // 6
- 	envconv[1] = T0.b; // 9
- 	envconv[2] = T0.a; // 4
- 	envconv[3] = T0.c; // 6
+ 	if( sommet[T0.b].ordonnee > sommet[T0.a].ordonnee){
+ 	
+ 		envconv[1] = T0.b; 
+ 		envconv[2] = T0.a; 
+ 	}else{
+		envconv[1] = T0.a;
+		envconv[2] = T0.b; 
+ 	}
+
+ 	envconv[3] = T0.c;
  	
 	for(int i=2;i<n-1;i++){
+	
+	/*
+		std::cout << "EnvCon deb : " << std::endl;
+		for(int k = 0; k<indEC+1; k++){
+			std::cout << envconv[k] << std::endl;
+				
+		}
 		
+		std::cout << std::endl;
+	*/
 		j = 0;
-
+		
 		while(det(sommet[tri[i+1]],sommet[envconv[j]],sommet[tri[i+1]],sommet[envconv[j+1]] ) < 0){		
 			
 			triangle t;
@@ -269,7 +286,7 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 		
 		envconvTmp[indTmp] = tri[i+1];
 		
-		for(int k = Kdroite; k <= Kgauche; k++){
+		for(int k = Kdroite; k < Kgauche+1; k++){
 			indTmp++;
 			envconvTmp[indTmp] = envconv[k];
 		}
@@ -280,8 +297,21 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 		indEC = indTmp ;
 		
 		for(int k = 0; k<indEC+1; k++){
-			envconv[k] = envconvTmp[k];	
-		}		
+			envconv[k] = envconvTmp[k];
+				
+		}
+		
+		/*
+		std::cout << "EnvCon fin : " << std::endl;
+		for(int k = 0; k<indEC+1; k++){
+			std::cout << envconv[k] << std::endl;
+				
+		}
+		
+		std::cout << "---------------------------------" << std::endl;
+		std::cout << std::endl;	
+		*/
+
  	}
 
 
