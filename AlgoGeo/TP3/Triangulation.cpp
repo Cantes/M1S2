@@ -2,11 +2,12 @@
 #include <fstream>
 #include <stdlib.h>
 #include <math.h>
+#include <vector>
 #define PI 3.14159265
 
 using namespace std;
 
-int const n=10;
+int const n=50;
 
 
 /*******************************************************************/
@@ -113,10 +114,12 @@ void AffichagePoints(int n, point sommet[]){
    output.close();
 }
 
-void AffichageTriangulation(int n, point sommet[], int t, triangle T[]){
+//void AffichageTriangulation(int n, point sommet[], int t, triangle T[]){
+void AffichageTriangulation(int n, point sommet[], int t, std::vector<triangle> T){
   //Affichage des n points du plan dont les coordonnees sont dans sommet[] et d'une triangulation
   //en t triangles stockes dans T, tableau de taille t.
   //Produit en sortie un fichier Triangulation.ps
+  
    ofstream output;
    output.open("Triangulation.ps");//
    output << "%!PS-Adobe-3.0" << endl;
@@ -132,18 +135,18 @@ void AffichageTriangulation(int n, point sommet[], int t, triangle T[]){
      output << endl;
    }
    output << endl;
-    for(int i=0;i<t;i++){
-      output << sommet[T[i].a].abscisse << " " << sommet[T[i].a].ordonnee 
+    for(int i=0;i<T.size();i++){
+      output << sommet[T.at(i).a].abscisse << " " << sommet[T.at(i).a].ordonnee 
  	    << " moveto"  << endl;
-      output << sommet[T[i].b].abscisse << " " << sommet[T[i].b].ordonnee
+      output << sommet[T.at(i).b].abscisse << " " << sommet[T.at(i).b].ordonnee
  	    << " lineto"  << endl;
-      output << sommet[T[i].b].abscisse << " " << sommet[T[i].b].ordonnee 
+      output << sommet[T.at(i).b].abscisse << " " << sommet[T.at(i).b].ordonnee 
  	    << " moveto"  << endl;
-      output << sommet[T[i].c].abscisse << " " << sommet[T[i].c].ordonnee
+      output << sommet[T.at(i).c].abscisse << " " << sommet[T.at(i).c].ordonnee
  	    << " lineto"  << endl;
-      output << sommet[T[i].c].abscisse << " " << sommet[T[i].c].ordonnee 
+      output << sommet[T.at(i).c].abscisse << " " << sommet[T.at(i).c].ordonnee 
  	    << " moveto"  << endl;
-      output << sommet[T[i].a].abscisse << " " << sommet[T[i].a].ordonnee
+      output << sommet[T.at(i).a].abscisse << " " << sommet[T.at(i).a].ordonnee
  	    << " lineto"  << endl;
       output << "stroke" << endl;
       output << endl;
@@ -199,72 +202,54 @@ void TriLexicographique(int n, point* sommet, int t, int* Tri){
 
 
 
-int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
+int TriangulIncrementale(int n, point* sommet, int* tri, std::vector<triangle> &T){
   
 	int j;
 	int Kdroite, Kgauche;
-	int ind = 0;
-	int indEC = 3;
-	int* envconv = new int[n+1];
-	int indTmp = 1;
-	int* envconvTmp = new int[n+1];
-	int taille_envconv=3;
-	int nbre_triangle=0;  
+	std::vector<int> envconv;
 	
  	triangle T0;
  	T0.a = tri[0];
  	T0.b = tri[1];
  	T0.c = tri[2]; 
  	
- 	T[ind] = T0;
- 	nbre_triangle++;
- 	ind++;
-	
- 	envconv[0] = T0.c;
+ 	T.push_back(T0);
+
+ 	envconv.push_back(T0.c);
  	
- 	if( sommet[T0.b].ordonnee > sommet[T0.a].ordonnee){
+ 	 if( sommet[T0.b].ordonnee > sommet[T0.a].ordonnee){
  	
- 		envconv[1] = T0.b; 
- 		envconv[2] = T0.a; 
+ 		envconv.push_back(T0.b); 
+ 		envconv.push_back(T0.a); 
  	}else{
-		envconv[1] = T0.a;
-		envconv[2] = T0.b; 
+		envconv.push_back(T0.a);
+		envconv.push_back(T0.b); 
  	}
 
- 	envconv[3] = T0.c;
+ 	envconv.push_back(T0.c);
+ 	
  	
 	for(int i=2;i<n-1;i++){
 	
-	/*
-		std::cout << "EnvCon deb : " << std::endl;
-		for(int k = 0; k<indEC+1; k++){
-			std::cout << envconv[k] << std::endl;
-				
-		}
-		
-		std::cout << std::endl;
-	*/
 		j = 0;
 		
-		while(det(sommet[tri[i+1]],sommet[envconv[j]],sommet[tri[i+1]],sommet[envconv[j+1]] ) < 0){		
+		while(det(sommet[tri[i+1]],sommet[envconv.at(j)],sommet[tri[i+1]],sommet[envconv.at(j+1)] ) < 0){		
 			
 			triangle t;
-			t.a = envconv[j];
-			t.b = envconv[j+1];
+			t.a = envconv.at(j);
+			t.b = envconv.at(j+1);
 			t.c = tri[i+1];	
 			
-			T[ind] = t;
-			
-			nbre_triangle++;
-			ind++;
+			T.push_back(t);
+
 			j++;
 		}
 		
 		Kdroite = j;
 		
-		j = indEC;
+		j = envconv.size()-1;
 		
-		while(det(sommet[tri[i+1]],sommet[envconv[j]],sommet[tri[i+1]],sommet[envconv[j-1]]) > 0){
+		while(det(sommet[tri[i+1]],sommet[envconv.at(j)],sommet[tri[i+1]],sommet[envconv.at(j-1)]) > 0){
 			
 			triangle t;
 
@@ -272,50 +257,38 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 			t.b = envconv[j-1];
 			t.c = tri[i+1];
 			
-			T[ind] = t;
+			T.push_back(t);
 			
-			nbre_triangle++;
-			ind++;
 			j--;
 		
 		}
 		
 		Kgauche = j;
 		
-		indTmp = 0;
 		
-		envconvTmp[indTmp] = tri[i+1];
+		std::vector<int> envconvTmp;
 		
-		for(int k = Kdroite; k < Kgauche+1; k++){
-			indTmp++;
-			envconvTmp[indTmp] = envconv[k];
+		envconvTmp.push_back(tri[i+1]);
+		
+		for (int i = Kdroite; i < Kgauche+1; ++i) {
+			envconvTmp.push_back(envconv.at(i));
 		}
 		
-		indTmp++;
-		envconvTmp[indTmp] = envconvTmp[0];
-
-		indEC = indTmp ;
+		envconvTmp.push_back(tri[i+1]);
 		
-		for(int k = 0; k<indEC+1; k++){
-			envconv[k] = envconvTmp[k];
-				
-		}
+		envconv = envconvTmp;
 		
 		/*
-		std::cout << "EnvCon fin : " << std::endl;
-		for(int k = 0; k<indEC+1; k++){
-			std::cout << envconv[k] << std::endl;
-				
+		for(int i=0; i< envconv.size(); i++){
+			std::cout << envconv.at(i) << std::endl;
+		
 		}
 		
-		std::cout << "---------------------------------" << std::endl;
-		std::cout << std::endl;	
-		*/
+		std::cout << std::endl;*/
 
  	}
-
-
-  return nbre_triangle;
+ 	
+	return T.size();
 }
 
 /*******************************************************************/
@@ -326,7 +299,8 @@ int TriangulIncrementale(int n, point* sommet, int* tri, triangle* T){
 int main(){
   point sommet[n];
   int tri[n];
-  triangle T[3*n];
+  std::vector<triangle> T;
+ // triangle T[3*n];
   for(int i=0;i<n;i++){tri[i]=i;}
   PointAuHasard(n,sommet);
   AffichagePoints(n,sommet);
