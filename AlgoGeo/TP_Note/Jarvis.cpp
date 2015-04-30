@@ -7,7 +7,6 @@
 
 using namespace std;
 
-int const n=30;
 const int absMin = 50;
 const int absMax = 550;
 const int ordMin = 150;
@@ -130,6 +129,7 @@ int Jarvis(int n, std::vector<point> sommet,int* envconv){
 
 	pCourant = pMin;
 	envconv[0] = pMin;
+	//std::cout << "pMin : " << pMin << std::endl;
 	
 	do{	
 		do{
@@ -228,10 +228,95 @@ void pelureOignon(int n, std::vector<point> sommet,int* envconv){
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 int main(){
+
+int n=20;
+
   std::vector<point> sommet;
+  
+  point p;
+  
+  p.abscisse = 123;
+  p.ordonnee = 523;
+  sommet.push_back(p);
+  
+p.abscisse=259;
+p.ordonnee=476;
+  sommet.push_back(p);
+  
+p.abscisse=411;
+p.ordonnee=280;
+sommet.push_back(p);
+  
+p.abscisse=60;
+p.ordonnee=400;
+sommet.push_back(p);
+  
+p.abscisse=187;
+p.ordonnee=544;
+sommet.push_back(p);
+  
+p.abscisse=447;
+p.ordonnee=381;
+sommet.push_back(p);
+
+p.abscisse=296;
+p.ordonnee=194;
+sommet.push_back(p);
+
+p.abscisse=273;
+p.ordonnee=614;
+sommet.push_back(p);
+
+p.abscisse=130;
+p.ordonnee=250;
+sommet.push_back(p);
+
+p.abscisse=212;
+p.ordonnee=587;
+sommet.push_back(p);
+
+p.abscisse=500;
+p.ordonnee=400;
+sommet.push_back(p);
+
+p.abscisse=280;
+p.ordonnee=170;
+sommet.push_back(p);
+
+p.abscisse=280;
+p.ordonnee=630;
+sommet.push_back(p);
+
+p.abscisse=311;
+p.ordonnee=233;
+sommet.push_back(p);
+
+p.abscisse=345;
+p.ordonnee=512;
+sommet.push_back(p);
+
+p.abscisse=130;
+p.ordonnee=550;
+sommet.push_back(p);
+
+p.abscisse=430;
+p.ordonnee=250;
+sommet.push_back(p);
+
+p.abscisse=212;
+p.ordonnee=587;
+sommet.push_back(p);
+
+p.abscisse=430;
+p.ordonnee=550;
+sommet.push_back(p);
+
+p.abscisse=431;
+p.ordonnee=450;
+sommet.push_back(p);
+
   int envconv[n+1];  
   for(int i=0;i<n+1;i++){envconv[i]=-1;}
-  PointAuHasard(n,sommet);
   AffichagePoints(n,sommet);
   
   pelureOignon(n,sommet,envconv);

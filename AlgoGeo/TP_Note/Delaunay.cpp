@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <vector>
 
-
 using namespace std;
 
 /*******************************************************************/
@@ -16,7 +15,6 @@ typedef struct {
   int  abscisse;
   int  ordonnee;
 } point;
-
 
 
 /*******************************************************************/
@@ -154,10 +152,10 @@ void PointAuHasard(int n,point sommet[]){
 
   //Tire n points au hasard uniformement repartis dans un disque, leurs coordonnees sont
   //stockees dans sommet[]
-  //int graine=time(NULL);
-  int tps = 256;
-  //srand(graine);
-  srand(tps);
+  int graine=time(NULL);
+  //int tps = 256;
+  srand(graine);
+ // srand(tps);
   for(int i=0;i<n;i++){
     int r= rand()%250;
     int theta= rand() %360;
@@ -316,7 +314,7 @@ int TriangulIncrementale(int n, point* sommet, int* tri, std::vector<triangle> &
 	
 		j = 0;
 		
-		while(det(sommet[tri[i+1]],sommet[envconv.at(j)],sommet[tri[i+1]],sommet[envconv.at(j+1)] ) <= 0){		
+		while(det(sommet[tri[i+1]],sommet[envconv.at(j)],sommet[tri[i+1]],sommet[envconv.at(j+1)] ) < 0){		
 			
 			triangle t;
 			t.a = envconv.at(j);
@@ -332,7 +330,7 @@ int TriangulIncrementale(int n, point* sommet, int* tri, std::vector<triangle> &
 		
 		j = envconv.size()-1;
 		
-		while(det(sommet[tri[i+1]],sommet[envconv.at(j)],sommet[tri[i+1]],sommet[envconv.at(j-1)]) >= 0){
+		while(det(sommet[tri[i+1]],sommet[envconv.at(j)],sommet[tri[i+1]],sommet[envconv.at(j-1)]) > 0){
 			
 			triangle t;
 
@@ -455,9 +453,22 @@ int TriangleArete(int i, int x, int y, std::vector<triangle> T, int voisin[][3])
 
 }
 
+int positionSommet(point* sommet,int n, point p){
+
+	for(int i=0; i<n; i++){
+		if(sommet[i].abscisse == p.abscisse && sommet[i].ordonnee == p.ordonnee){
+			return i;
+		}  
+	}
+	
+	return -1;
+
+
+}
+
 //---------------------------------------------
 
-void Flip(int i, int j, std::vector<triangle> &T, int voisin[][3]){
+void Flip(point* sommet,int n, int i, int j, std::vector<triangle> &T, int voisin[][3]){
 
   //Effectue un 'flip' entre les triangles T[i] et T[j]
   //t est la taille du tableau T et voisin, tableau calcule
@@ -470,21 +481,34 @@ void Flip(int i, int j, std::vector<triangle> &T, int voisin[][3]){
 	int z;
 	int w;
 
+	std::cout << "Triangle 1 : " << T.at(i).a << "," << T.at(i).b << "," << T.at(i).c << std::endl;
+	std::cout << "Triangle 2 : " << T.at(j).a << "," << T.at(j).b << "," << T.at(j).c << std::endl;
 	
 	if(T.at(i).a==x){
 		z=T.at(i).b;
 		w=T.at(i).c;
+std::cout << "Flip entre les aretes formees par les sommets : " << positionSommet(sommet,n, sommet[z]) << "," << positionSommet(sommet,n, sommet[w]) << std::endl;
+		std::cout << "par : " << std::endl;
+std::cout << positionSommet(sommet,n, sommet[x]) << "," << positionSommet(sommet,n, sommet[y]) << std::endl;
 	}
 	
   	if(T.at(i).b==x){
   		z=T.at(i).a;
   		w=T.at(i).c;
+std::cout << "Flip entre les aretes formees par les sommets : " << positionSommet(sommet,n, sommet[z]) << "," << positionSommet(sommet,n, sommet[w]) << std::endl;
+		std::cout << "par : " << std::endl;
+std::cout << positionSommet(sommet,n, sommet[x]) << "," << positionSommet(sommet,n, sommet[y]) << std::endl;
   	}
   	
   	if(T.at(i).c==x){
   		z=T.at(i).a;
   		w=T.at(i).b;
+std::cout << "Flip entre les aretes formees par les sommets : " << positionSommet(sommet,n, sommet[z]) << "," << positionSommet(sommet,n, sommet[w]) << std::endl;
+		std::cout << "par : " << std::endl;
+std::cout << positionSommet(sommet,n, sommet[x]) << "," << positionSommet(sommet,n, sommet[y]) << std::endl;
   	}
+  	
+  	std::cout << std::endl;
   
   //mise a jour des voisins, faire un dessin...
 
@@ -539,7 +563,8 @@ bool peutFlip(point sommet[], triangle t1, triangle t2) {
 
 //--------------------------------------------
 
-void Delaunay(point* sommet, vector<triangle> &T) {
+
+void Delaunay(point* sommet,int n, vector<triangle> &T) {
 
 	bool flag = true;
 	
@@ -554,7 +579,7 @@ void Delaunay(point* sommet, vector<triangle> &T) {
 	TrianglesVoisins(T.size(),T, voisin);
 	
 	int k =0;
-
+	int nbFlip = 0;
 	while (flag) {
 	
 		flag = false;
@@ -566,8 +591,8 @@ void Delaunay(point* sommet, vector<triangle> &T) {
 				
 					if (peutFlip(sommet, T.at(i), T.at(voisin[i][j])) ) {
 									
-						Flip(i, voisin[i][j],T, voisin);
-											
+						Flip(sommet,n, i, voisin[i][j],T, voisin);
+						nbFlip++;					
 						flag = true;
 					}
 				}
@@ -580,6 +605,9 @@ void Delaunay(point* sommet, vector<triangle> &T) {
 			break;
 		}
 	}
+	
+	std::cout << std::endl;
+	std::cout <<"Il y a eu " << nbFlip << " flip(s)." << std::endl;
 }
 
 
@@ -632,16 +660,79 @@ void AffichageTestCercleCirconscrit(point sommet[4]){
 
 
 int main(){
- 
-  int n=1000;
 
-  point sommet[n];
+int n=32;
+point sommet[n];
+
+sommet[0].abscisse=100;
+sommet[0].ordonnee=100;
+sommet[1].abscisse=100;
+sommet[1].ordonnee=500;
+sommet[2].abscisse=120;
+sommet[2].ordonnee=300;
+sommet[3].abscisse=140;
+sommet[3].ordonnee=100;
+sommet[4].abscisse=140;
+sommet[4].ordonnee=500;
+sommet[5].abscisse=160;
+sommet[5].ordonnee=300;
+sommet[6].abscisse=180;
+sommet[6].ordonnee=100;
+sommet[7].abscisse=180;
+sommet[7].ordonnee=500;
+sommet[8].abscisse=200;
+sommet[8].ordonnee=300;
+sommet[9].abscisse=220;
+sommet[9].ordonnee=100;
+sommet[10].abscisse=220;
+sommet[10].ordonnee=500;
+sommet[11].abscisse=240;
+sommet[11].ordonnee=300;
+sommet[12].abscisse=260;
+sommet[12].ordonnee=100;
+sommet[13].abscisse=260;
+sommet[13].ordonnee=500;
+sommet[14].abscisse=280;
+sommet[14].ordonnee=300;
+sommet[15].abscisse=300;
+sommet[15].ordonnee=100;
+sommet[16].abscisse=300;
+sommet[16].ordonnee=500;
+sommet[17].abscisse=320;
+sommet[17].ordonnee=300;
+sommet[18].abscisse=340;
+sommet[18].ordonnee=100;
+sommet[19].abscisse=340;
+sommet[19].ordonnee=500;
+sommet[20].abscisse=360;
+sommet[20].ordonnee=300;
+sommet[21].abscisse=380;
+sommet[21].ordonnee=100;
+sommet[22].abscisse=380;
+sommet[22].ordonnee=500;
+sommet[23].abscisse=400;
+sommet[23].ordonnee=300;
+sommet[24].abscisse=420;
+sommet[24].ordonnee=100;
+sommet[25].abscisse=420;
+sommet[25].ordonnee=500;
+sommet[26].abscisse=440;
+sommet[26].ordonnee=300;
+sommet[27].abscisse=460;
+sommet[27].ordonnee=100;
+sommet[28].abscisse=460;
+sommet[28].ordonnee=500;
+sommet[29].abscisse=480;
+sommet[29].ordonnee=300;
+sommet[30].abscisse=500;
+sommet[30].ordonnee=100;
+sommet[31].abscisse=500;
+sommet[31].ordonnee=500;
+
   int tri[n];
   std::vector<triangle> T;
   
-  
   for(int i=0;i<n;i++){tri[i]=i;}
-  PointAuHasard(n,sommet);
   AffichagePoints(n,sommet);
   TriLexicographique(n,sommet,n,tri);
   int t=TriangulIncrementale(n,sommet,tri,T);
@@ -649,7 +740,7 @@ int main(){
   
   //Lignes a decommenter, une fois l'implementation realisee
 
-  Delaunay(sommet,T);
+  Delaunay(sommet,n,T);
 
   AffichageTriangulation(true,n,sommet,t,T);
 
